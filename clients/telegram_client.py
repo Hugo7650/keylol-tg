@@ -1,9 +1,15 @@
 from pyrogram import Client
+from pyrogram.types import Message
+from pyrogram.enums import ChatType
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from models.post import ForumPost
 from io import BytesIO
 from config import Config
+import re
+
+if TYPE_CHECKING:
+    from services.post_service import PostService
 
 DEBUG_FLAG = False
 
@@ -17,6 +23,11 @@ class TelegramClient:
         self.app: Client
         self.logger = logging.getLogger(__name__)
         self.work_dir = work_dir
+        self.post_service: Optional['PostService'] = None
+    
+    def set_post_service(self, post_service: 'PostService'):
+        """设置帖子服务引用"""
+        self.post_service = post_service
     
     async def start(self):
         """启动Telegram客户端"""
@@ -54,10 +65,6 @@ class TelegramClient:
         try:
             message = post.to_telegram_message()
             
-            # 限制长度
-            if len(message) > 2000:
-                message = message[:1997] + "..."
-            
             if DEBUG_FLAG:
                 self.logger.info(f"准备发送帖子到频道 {channel_id}: {message}")
                 return True
@@ -66,6 +73,7 @@ class TelegramClient:
             await self.app.send_message(
                 chat_id=channel_id,
                 text=message,
+                disable_web_page_preview=False
             )
             
             # 如果有图片，发送图片
@@ -80,7 +88,7 @@ class TelegramClient:
             #         except Exception as e:
             #             self.logger.warning(f"发送图片失败: {e}")
             
-            self.logger.info(f"成功发送帖子到频道: {post.title}")
+            self.logger.info(f"成功发送帖子到频道: {post.id} {post.title}")
             return True
             
         except Exception as e:
@@ -98,6 +106,7 @@ class TelegramClient:
                 await self.app.send_message(
                     chat_id=admin_id,
                     text=message,
+                    disable_web_page_preview=False
                 )
             # 如果有验证码图片，发送图片
             if captcha_image:
@@ -125,19 +134,81 @@ class TelegramClient:
     def setup_handlers(self):
         """设置消息处理器"""
         @self.app.on_message()
-        async def handle_message(client, message):
-            if message.chat.type == "private":
+        async def handle_message(client, message: Message):
+            if message.chat.type == ChatType.PRIVATE:
                 # 处理私聊消息
                 if message.text:
                     self.logger.info(f"收到私聊消息: {message.chat.id}, 内容: {message.text if message.text else '无文本'}")
-                    if (Config.forum_base_url in message.text):
-                        pass
-            # elif message.chat.type == "channel":
-            #     # 处理频道消息
-            #     self.logger.info(f"收到频道消息: {message.chat.id}, 内容: {message.text if message.text else '无文本'}")
-            # elif message.chat.type == "group":
-            #     # 处理群组消息
-            #     self.logger.info(f"收到群组消息: {message.chat.id}, 内容: {message.text if message.text else '无文本'}")
-            # else:
-            #     self.logger.info(f"收到其他类型消息: {message.chat.id}, 内容: {message.text if message.text else '无文本'}")
+                    
+                    # 检查是否包含论坛链接
+                    if Config.forum_base_url in message.text:
+                        await self._handle_forum_link_message(message)
+            
         self.logger.info("Telegram消息处理器已设置")
+    
+    async def _handle_forum_link_message(self, message: Message):
+        """处理包含论坛链接的消息"""
+        try:
+            # 提取论坛链接
+            threads = self._extract_forum_links(message.text)
+            
+            if not threads:
+                return
+            
+            # 处理每个链接
+            for tid in threads:
+                if self.post_service:
+                    success = await self.post_service.process_single_thread(tid, message.chat.id)
+                    if not success:
+                        await self.app.send_message(
+                            chat_id=message.chat.id,
+                            text=f"抓取失败: {tid}"
+                        )
+                else:
+                    await self.app.send_message(
+                        chat_id=message.chat.id,
+                        text="服务未初始化，无法处理链接"
+                    )
+                    
+        except Exception as e:
+            self.logger.error(f"处理论坛链接消息失败: {e}")
+            await self.app.send_message(
+                chat_id=message.chat.id,
+                text=f"处理链接时出错: {str(e)}"
+            )
+    
+    def _extract_forum_links(self, text: str) -> list[int]:
+        """从文本中提取论坛链接"""
+        # 匹配论坛帖子链接的正则表达式
+        patterns = [
+            rf"{re.escape(Config.forum_base_url)}/thread-(\d+)",
+            rf"{re.escape(Config.forum_base_url)}/t(\d+)",
+        ]
+        threads = []
+        for pattern in patterns:
+            matches = re.findall(pattern, text)
+            threads.extend([int(match) for match in matches if match.isdigit()])
+        return list(set(threads))
+    
+    async def send_post_to_user(self, user_id: int, post: ForumPost) -> bool:
+        """发送帖子给用户"""
+        try:
+            message = post.to_telegram_message()
+            
+            if DEBUG_FLAG:
+                self.logger.info(f"准备发送帖子给用户 {user_id}: {message}")
+                return True
+            
+            # 发送文本消息
+            await self.app.send_message(
+                chat_id=user_id,
+                text=message,
+                disable_web_page_preview=True
+            )
+            
+            self.logger.info(f"成功发送帖子给用户 {user_id}: {post.id} {post.title}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"发送帖子给用户失败: {user_id}, 错误: {e}")
+            return False

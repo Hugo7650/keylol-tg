@@ -17,13 +17,12 @@ class ForumThread:
 
     def to_telegram_message(self) -> str:
         """转换为Telegram消息格式"""
-        message = f"🆕 **{self.title}**\n\n"
-        message += f"👤 作者: {self.author}\n"
-        message += f"🕐 时间: {self.publish_time.strftime('%Y-%m-%d %H:%M')}\n"
-        
+        message = f"**{self.title}**\n"
+        message += f"{self.author} \\ {self.publish_time.strftime('%Y-%m-%d %H:%M')}\n"
+
         if self.tags:
-            message += f"🏷️ 标签: {', '.join(self.tags)}\n"
+            message += f"标签: {', '.join(self.tags)}\n"
         
-        message += f"\n\n🔗 [查看原帖]({self.url})"
+        message += f"\n[查看原帖]({self.url})"
         
         return message

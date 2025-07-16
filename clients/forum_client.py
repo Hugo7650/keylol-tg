@@ -172,15 +172,15 @@ class ForumClient:
         try:
             # 获取帖子列表页面
             response = self.session.get(f"{self.base_url}/forum.php?mod=guide&view=newthread")
+            tree = etree.HTML(response.content, parser=etree.HTMLParser())
             
             # 检查是否需要重新登录
-            if "login" in response.url or "登录" in response.text:
+            if "login" in response.url or '登录' in tree.xpath('//section[@id="nav-additional"]//text()'):
                 self.is_logged_in = False
                 # 清除失效的 session
                 self.clear_session()
                 raise ForumLoginException("登录已失效")
             
-            tree = etree.HTML(response.content, parser=etree.HTMLParser())
             threads = []
             
             # 解析帖子列表
@@ -219,19 +219,34 @@ class ForumClient:
             self.logger.error(f"解析帖子列表元素失败: {e}")
             return None
     
-    def load_post_details(self, url: str) -> Optional[Dict[str, Any]]:
+    def load_post_details(self, thread_id: int) -> Optional[Dict[str, Any]]:
         """加载帖子详细信息"""
         try:
-            self.logger.info(f"加载帖子详细信息: {url}")
-            
-            response = self.session.get(url)
+            self.logger.info(f"加载帖子详细信息: {thread_id}")
+
+            response = self.session.get(f"{self.base_url}/t{thread_id}-1-1")
             if response.status_code != 200:
-                self.logger.error(f"无法访问帖子页面: {url}")
+                self.logger.error(f"无法访问帖子页面: {thread_id}")
                 return None
             
             post_tree = etree.HTML(response.content, parser=etree.HTMLParser())
+            
+            # 检查是否需要重新登录
+            if "login" in response.url or '登录' in (post_tree.xpath('//section[@id="nav-additional"]//text()') or []):
+                self.is_logged_in = False
+                self.clear_session()
+                raise ForumLoginException("登录已失效")
+            
             post_element = post_tree.xpath('//div[@id="postlist"]/div[contains(@id, "post_")]')[0]
             post_id = post_element.xpath('./@id')[0].split('_')[-1]
+            
+            # 提取标题
+            title_elements = post_tree.xpath('//a[@id="thread_subject"]')
+            title = title_elements[0].text.strip() if title_elements else "未知标题"
+            
+            # 提取作者
+            author_elements = post_element.xpath('.//td[@class="pls"]//a[@class="xw1"]')
+            author = author_elements[0].text.strip() if author_elements else "未知作者"
             
             # 解析发布时间
             publish_time = self._parse_time(post_element.xpath(f'.//em[@id="authorposton{post_id}"]/span/@title')[0].strip())
@@ -247,6 +262,8 @@ class ForumClient:
             tags = self._extract_tags_from_content(post_message)
             
             return {
+                'title': title,
+                'author': author,
                 'content': content,
                 'publish_time': publish_time,
                 'images': images,
@@ -301,7 +318,7 @@ class ForumClient:
     def _parse_message_content(self, message_element: etree._Element) -> str:
         """解析帖子内容为字符串"""
         try:
-            content_parts = []
+            content_parts: list[str] = []
             skip_next_steam_span = False  # 添加标志来跳过Steam相关的span
             
             # 递归解析元素内容
@@ -312,7 +329,12 @@ class ForumClient:
                 if element.text:
                     text = element.text.strip()
                     if text:
-                        content_parts.append(text)
+                        if len(content_parts) > 0 and not any(content_parts[-1].startswith(prefix) for prefix in ['[', 'http', '*', '>', '\n']):
+                            content_parts[-1] += text
+                            if len(content_parts[-1]) > 50:
+                                content_parts[-1] = content_parts[-1][:50] + '...'
+                        else:
+                            content_parts.append(text)
                 
                 # 处理子元素
                 for child in element:
@@ -327,19 +349,22 @@ class ForumClient:
                                 src = self.base_url + src
                             elif not src.startswith('http'):
                                 src = self.base_url + '/' + src
-                            content_parts.append(f"[图片: {src}]")
+                            content_parts.append(f"[图片]({src})")
                     
                     elif tag == 'a':
                         # 处理链接
                         href = child.get('href', '')
                         link_text = child.text or ''
                         
-                        # Steam相关链接特殊处理
+                        if href.endswith('.jpg') or href.endswith('.png') or href.endswith('.gif'):
+                            # 如果链接是图片，直接添加
+                            content_parts.append(f"[图片]({href})")
                         if 'steam' in href.lower():
+                            # Steam相关链接特殊处理
                             if link_text:
-                                content_parts.append(f"[Steam链接: {link_text}]")
+                                content_parts.append(f"[{link_text}]({href})")
                             else:
-                                content_parts.append(f"[Steam链接: {href}]")
+                                content_parts.append(f"[Steam链接]({href})")
                         elif href.startswith('#'):
                             # 页面内锚点链接，只保留文本
                             if link_text:
@@ -351,13 +376,18 @@ class ForumClient:
                             # 确保URL完整
                             if href.startswith('/'):
                                 href = self.base_url + href
-                            content_parts.append(f"[链接: {link_text} - {href}]")
+                            if (link_text[:5] == href[:5] and link_text[-5:] == href[-5:]):
+                                # 如果链接文本和URL相同，直接使用文本
+                                content_parts.append(link_text)
+                            else:
+                                content_parts.append(f"[{link_text}]({href})")
                         elif link_text:
                             content_parts.append(link_text)
                     
                     elif tag == 'iframe':
                         # 处理iframe（如Steam小部件）
                         src = child.get('src', '')
+                        class_attr = child.get('class', '')
                         if 'steam' in src.lower(): # https://store.steampowered.com/widget/3289890/?utm_source=keylol
                             # app_id_match = re.search(r'/(\d+)/', src)
                             # if app_id_match:
@@ -366,9 +396,13 @@ class ForumClient:
                             #     content_parts.append(f"[Steam小部件: {app_id}]")
                             # else:
                             #     content_parts.append(f"[Steam小部件: {src}]")
-                            if ('widget' in src):
+                            if ('widget' in src): # https://store.steampowered.com/widget/3588970/?utm_source=keylol&cc=cn
                                 src = src.replace('widget', 'app')
-                            content_parts.append(f"[Steam小部件: {src.split('?')[0]}]")
+                            if 'app/' in src:
+                                app_id = src.split('app/')[-1].split('/?')[0]
+                                content_parts.append(f"[Steam app {app_id}](https://store.steampowered.com/app/{app_id})")
+                            else:
+                                content_parts.append(f"[Steam链接]({src})")
                             # 设置标志，跳过下一个Steam相关的span
                             skip_next_steam_span = True
                         elif 'countdown' in src.lower():
@@ -377,7 +411,15 @@ class ForumClient:
                                 local_time = datetime.fromtimestamp(int(t))
                                 content_parts.append(f"[倒计时: {local_time.strftime('%Y-%m-%d %H:%M:%S')}]")
                         else:
-                            content_parts.append("[嵌入内容]")
+                            if class_attr == 'html5video':
+                                if 'bilibili' in src:
+                                    bvid = src.split('?bvid=')[-1].split('&')[0]
+                                    content_parts.append(f"[{bvid}](https://www.bilibili.com/video/{bvid}/)")
+                                elif 'mp4=' in src:
+                                    src = src.split('mp4=')[-1]
+                                    content_parts.append(f"[视频]({src})")
+                            else:
+                                content_parts.append("[嵌入内容]")
                     
                     elif tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                         # 处理标题
@@ -390,12 +432,14 @@ class ForumClient:
                         quote_text = self._extract_text_content(child)
                         if quote_text:
                             # 为引用添加前缀
-                            quoted_lines = [f"> {line}" for line in quote_text.split('\n') if line.strip()]
+                            quote_header = "**" if len(quote_text) >  50 else ""
+                            quoted_lines = [f"{quote_header}> {line}" for line in quote_text.split('\n') if line.strip()]
                             content_parts.append('\n' + '\n'.join(quoted_lines) + '\n')
                     
                     elif tag == 'br':
                         # 处理换行
-                        content_parts.append('\n')
+                        if len(content_parts) > 0 and not content_parts[-1].endswith('\n'):
+                            content_parts[-1] += '' if content_parts[-1].startswith('[') else '\n'
                     
                     elif tag == 'span':
                         # 检查是否需要跳过Steam相关的span
@@ -430,8 +474,12 @@ class ForumClient:
                         
                         # 跳过某些不需要的元素
                         if any(skip_class in class_attr for skip_class in [
-                            'swi-block', 'steam-info-wrapper', 'tip', 'steam-info-loading', 'original_text_style1'
+                            'swi-block', 'steam-info-wrapper', 'tip', 'steam-info-loading', 'original_text_style1', 'rnd_ai_pr'
                         ]):
+                            continue
+                        
+                        if class_attr == 'locked':
+                            content_parts.append("[隐藏内容]")
                             continue
                         
                         # 递归处理子元素
@@ -445,9 +493,10 @@ class ForumClient:
                     
                     elif tag == 'em' or tag == 'i':
                         # 处理斜体
-                        italic_text = self._extract_text_content(child)
-                        if italic_text:
-                            content_parts.append(f"*{italic_text}*")
+                        if '本帖最后由' not in child.text:
+                            italic_text = self._extract_text_content(child)
+                            if italic_text:
+                                content_parts.append(f"*{italic_text}*")
                     
                     elif tag in ['p', 'div'] and child.text:
                         # 处理段落
@@ -455,7 +504,7 @@ class ForumClient:
                         if para_text:
                             content_parts.append(f"\n{para_text}\n")
                     
-                    elif any(skip_tag in tag for skip_tag in ['script', 'style', 'noscript']):
+                    elif any(skip_tag in tag for skip_tag in ['script', 'style']):
                         # 跳过脚本和样式元素
                         continue
                     
@@ -467,16 +516,28 @@ class ForumClient:
                     if child.tail:
                         tail_text = child.tail.strip()
                         if tail_text:
+                            if content_parts[-1].startswith('['):
+                                content_parts[-1] += '\n'
                             content_parts.append(tail_text)
             
             # 开始解析
             parse_element(message_element)
             
+            if len(content_parts) > 1 and '[图片]' in content_parts[0] and '[Steam' in content_parts[1]:
+                content_parts = content_parts[1:]  # 如果第一个是图片，跳过
+            
             # 合并内容并清理
-            content = ' '.join(content_parts)
+            content = ''
+            for part in content_parts:
+                if content:
+                    content += ' '
+                content += part
+                if len(content) > 2000:
+                    content += '...'
+                    break
             
             # 清理多余的空白字符
-            content = re.sub(r'\n\s*\n', '\n\n', content)  # 合并多个空行
+            content = re.sub(r'\n\s*\n', '\n', content)  # 合并多个空行
             content = re.sub(r' +', ' ', content)  # 合并多个空格
             content = content.strip()
             

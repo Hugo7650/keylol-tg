@@ -98,6 +98,9 @@ class KeylolTelegramApp:
             work_dir=self.work_dir
         )
         
+        # 设置相互引用
+        self.telegram_client.set_post_service(self.post_service)
+        
         # 初始化调度器
         self.scheduler = TaskScheduler(asyncio.get_running_loop())
         
@@ -113,12 +116,12 @@ class KeylolTelegramApp:
             self.forum_client.login()
             await self.telegram_client.send_admin_notification(
                 self.config.telegram_admin_id,
-                "🚀 Keylol Telegram 应用已启动"
+                "Keylol Telegram 应用已启动"
             )
         except Exception as e:
             await self.telegram_client.send_admin_notification(
                 self.config.telegram_admin_id,
-                f"⚠️ 应用启动，但论坛登录失败: {str(e)}"
+                f"应用启动，但论坛登录失败: {str(e)}"
             )
     
     async def _keep_running(self):
@@ -138,7 +141,7 @@ class KeylolTelegramApp:
         if self.telegram_client:
             await self.telegram_client.send_admin_notification(
                 self.config.telegram_admin_id,
-                "⏹️ Keylol Telegram 应用已停止"
+                "Keylol Telegram 应用已停止"
             )
             await self.telegram_client.stop()
         

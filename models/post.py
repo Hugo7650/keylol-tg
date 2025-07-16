@@ -32,7 +32,7 @@ class ForumPost:
         
         try:
             # 使用forum_client加载详细信息
-            post_details = self._forum_client.load_post_details(self.url)
+            post_details = self._forum_client.load_post_details(self.id)
             if post_details:
                 self._content = post_details.get('content', '')
                 self._publish_time = post_details.get('publish_time', datetime.now())
@@ -77,19 +77,14 @@ class ForumPost:
     
     def to_telegram_message(self) -> str:
         """转换为Telegram消息格式"""
-        message = f"🆕 **{self.title}**\n"
-        message += f"👤 作者: {self.author}\n"
-        message += f"🕐 时间: {self.publish_time.strftime('%Y-%m-%d %H:%M')}\n"
+        message = f"**{self.title}**\n"
+        message += f"{self.author} \\ {self.publish_time.strftime('%Y-%m-%d %H:%M')}\n"
         
         if self.tags:
-            message += f"🏷️ 标签: {', '.join(self.tags)}\n"
+            message += f"标签: {', '.join(self.tags)}\n"
         
-        # message += f"📖 内容预览:\n{self.content[:1000]}..."
-        if len(self.content) > 1000:
-            message += f"📖 内容预览:\n{self.content[:1000]}...\n"
-        else:
-            message += f"📖 内容预览:\n{self.content}\n"
-        message += f"\n🔗 [查看原帖]({self.url})"
+        message += f"{self.content}\n"
+        message += f"\n[查看原帖]({self.url})"
         
         return message
     
