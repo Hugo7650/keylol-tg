@@ -516,7 +516,7 @@ class ForumClient:
                     if child.tail:
                         tail_text = child.tail.strip()
                         if tail_text:
-                            if content_parts[-1].startswith('['):
+                            if len(content_parts) > 0 and content_parts[-1].startswith('['):
                                 content_parts[-1] += '\n'
                             content_parts.append(tail_text)
             
