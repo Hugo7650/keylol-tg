@@ -6,9 +6,8 @@
 
 ## Key Dependencies
 - **pyrofork**: Telegram client library (fork of Pyrogram)
-- **requests**: HTTP client for forum scraping
+- **httpx**: HTTP client for forum scraping and async transport
 - **lxml**: XML/HTML parsing for forum content
-- **aiohttp**: Async HTTP client
 - **schedule**: Task scheduling
 - **python-dotenv**: Environment variable management
 - **tgcrypto**: Telegram encryption support

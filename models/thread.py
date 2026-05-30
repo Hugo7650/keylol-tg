@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 from models.post import ForumPost
@@ -11,18 +11,16 @@ class ForumThread:
     author: str
     publish_time: datetime
     url: str
-    images: List[str] = []  
-    tags: List[str] = []
-    posts: List[ForumPost] = []
+    images: List[str] = field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
+    posts: List[ForumPost] = field(default_factory=list)
 
     def to_telegram_message(self) -> str:
         """转换为Telegram消息格式"""
-        message = f"**{self.title}**\n"
-        message += f"{self.author} \\ {self.publish_time.strftime('%Y-%m-%d %H:%M')}\n"
+        from infrastructure.services import LegacyTelegramPayloadAdapter
 
-        if self.tags:
-            message += f"标签: {', '.join(self.tags)}\n"
-        
-        message += f"\n[查看原帖]({self.url})"
-        
-        return message
+        payload = LegacyTelegramPayloadAdapter().from_forum_thread(
+            self,
+            disable_web_page_preview=False,
+        )
+        return payload.text

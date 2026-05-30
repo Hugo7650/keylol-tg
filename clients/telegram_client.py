@@ -3,6 +3,8 @@ from pyrogram.types import Message
 from pyrogram.enums import ChatType
 import logging
 from typing import Optional, TYPE_CHECKING
+from domain.value_objects import TelegramPayload
+from infrastructure.services import LegacyTelegramPayloadAdapter
 from models.post import ForumPost
 from io import BytesIO
 from config import Config
@@ -24,6 +26,7 @@ class TelegramClient:
         self.logger = logging.getLogger(__name__)
         self.work_dir = work_dir
         self.post_service: Optional['PostService'] = None
+        self._legacy_payload_adapter = LegacyTelegramPayloadAdapter()
     
     def set_post_service(self, post_service: 'PostService'):
         """设置帖子服务引用"""
@@ -63,36 +66,32 @@ class TelegramClient:
     async def send_post_to_channel(self, channel_id: int, post: ForumPost) -> bool:
         """发送帖子到频道"""
         try:
-            message = post.to_telegram_message()
-            
-            if DEBUG_FLAG:
-                self.logger.info(f"准备发送帖子到频道 {channel_id}: {message}")
-                return True
-            
-            # 发送文本消息
-            await self.app.send_message(
-                chat_id=channel_id,
-                text=message,
-                disable_web_page_preview=False
+            payload = self.build_legacy_payload_for_post(
+                post,
+                disable_web_page_preview=False,
             )
-            
-            # 如果有图片，发送图片
-            # if post.images:
-            #     for img_url in post.images[:3]:  # 最多发送3张图片
-            #         try:
-            #             await self.app.send_photo(
-            #                 chat_id=channel_id,
-            #                 photo=img_url,
-            #                 caption=message
-            #             )
-            #         except Exception as e:
-            #             self.logger.warning(f"发送图片失败: {e}")
-            
-            self.logger.info(f"成功发送帖子到频道: {post.id} {post.title}")
-            return True
+            return await self.send_payload_to_channel(channel_id, payload)
             
         except Exception as e:
             self.logger.error(f"发送帖子到频道失败: {channel_id}, 错误: {e}")
+            return False
+
+    async def send_payload_to_channel(self, channel_id: int, payload: TelegramPayload) -> bool:
+        """发送结构化消息载荷到频道。"""
+        try:
+            if DEBUG_FLAG:
+                self.logger.info(f"准备发送载荷到频道 {channel_id}: {payload.text}")
+                return True
+
+            await self.app.send_message(
+                chat_id=channel_id,
+                text=payload.text,
+                disable_web_page_preview=payload.disable_web_page_preview,
+            )
+            self.logger.info(f"成功发送载荷到频道: {channel_id}")
+            return True
+        except Exception as e:
+            self.logger.error(f"发送载荷到频道失败: {channel_id}, 错误: {e}")
             return False
     
     async def send_admin_notification(self, admin_id: int, message: str, 
@@ -193,22 +192,42 @@ class TelegramClient:
     async def send_post_to_user(self, user_id: int, post: ForumPost) -> bool:
         """发送帖子给用户"""
         try:
-            message = post.to_telegram_message()
-            
-            if DEBUG_FLAG:
-                self.logger.info(f"准备发送帖子给用户 {user_id}: {message}")
-                return True
-            
-            # 发送文本消息
-            await self.app.send_message(
-                chat_id=user_id,
-                text=message,
-                disable_web_page_preview=True
+            payload = self.build_legacy_payload_for_post(
+                post,
+                disable_web_page_preview=True,
             )
-            
-            self.logger.info(f"成功发送帖子给用户 {user_id}: {post.id} {post.title}")
-            return True
+            return await self.send_payload_to_user(user_id, payload)
             
         except Exception as e:
             self.logger.error(f"发送帖子给用户失败: {user_id}, 错误: {e}")
             return False
+
+    async def send_payload_to_user(self, user_id: int, payload: TelegramPayload) -> bool:
+        """发送结构化消息载荷给用户。"""
+        try:
+            if DEBUG_FLAG:
+                self.logger.info(f"准备发送载荷给用户 {user_id}: {payload.text}")
+                return True
+
+            await self.app.send_message(
+                chat_id=user_id,
+                text=payload.text,
+                disable_web_page_preview=payload.disable_web_page_preview,
+            )
+            self.logger.info(f"成功发送载荷给用户 {user_id}")
+            return True
+        except Exception as e:
+            self.logger.error(f"发送载荷给用户失败: {user_id}, 错误: {e}")
+            return False
+
+    def build_legacy_payload_for_post(
+        self,
+        post: ForumPost,
+        *,
+        disable_web_page_preview: bool,
+    ) -> TelegramPayload:
+        """Build the legacy ForumPost projection without sending it yet."""
+        return self._legacy_payload_adapter.from_forum_post(
+            post,
+            disable_web_page_preview=disable_web_page_preview,
+        )

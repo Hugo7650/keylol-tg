@@ -76,7 +76,10 @@ class KeylolTelegramApp:
             self.config.forum_base_url,
             self.config.forum_username,
             self.config.forum_password,
-            work_dir=self.work_dir
+            work_dir=self.work_dir,
+            async_timeout=self.config.forum_async_timeout,
+            request_retries=self.config.forum_request_retries,
+            retry_backoff=self.config.forum_retry_backoff,
         )
         
         # 初始化Telegram客户端
@@ -95,7 +98,8 @@ class KeylolTelegramApp:
             self.config.telegram_channel_id,
             self.config.telegram_admin_id,
             self.config.max_posts_per_check,
-            work_dir=self.work_dir
+            work_dir=self.work_dir,
+            structured_pipeline_mode=self.config.structured_pipeline_mode,
         )
         
         # 设置相互引用
@@ -113,7 +117,7 @@ class KeylolTelegramApp:
         
         # 尝试初始登录
         try:
-            self.forum_client.login()
+            await self.forum_client.async_login()
             await self.telegram_client.send_admin_notification(
                 self.config.telegram_admin_id,
                 "Keylol Telegram 应用已启动"
@@ -144,6 +148,9 @@ class KeylolTelegramApp:
                 "Keylol Telegram 应用已停止"
             )
             await self.telegram_client.stop()
+
+        if self.forum_client:
+            await self.forum_client.aclose()
         
         self._should_exit.set()
         self.logger.info("应用已停止")

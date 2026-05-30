@@ -1,78 +1,75 @@
 # Implementation Plan
 
-- [ ] 1. Create domain layer value objects and interfaces
+Status updated: 2026-05-30
 
+- [x] 1. Define the new structured-processing contracts
+  - Create FetchedThreadPage, RootPostMetadata, RawThreadData, PostContent, ParseIssue, ParseResult, and TelegramPayload.
+  - Add a minimal content-element set: TextElement, LinkElement, ImageElement, QuoteElement, EmbedElement, LineBreakElement, and UnknownElement.
+  - Add projection helpers for plain text and media URLs.
+  - _Requirements: 2.1, 2.2, 2.4, 2.5, 6.1_
 
+- [x] 2. Split thread fetching from HTML extraction
+  - Refactor ForumClient so it fetches thread pages and manages authentication/session state only.
+  - Introduce a transport-level FetchedThreadPage result and typed fetch/extraction errors with thread context.
+  - Remove message-string assembly from ForumClient.
+  - _Requirements: 1.1, 1.4, 1.5_
 
+- [x] 3. Implement ThreadPageExtractor
+  - Extract title, author, publish_time, root_post_id, tags, canonical URL, and root_post_html from fetched thread pages.
+  - Return RawThreadData with validated required metadata.
+  - Keep page-structure assumptions localized to the extractor.
+  - _Requirements: 1.2, 2.4, 6.3_
 
-  - Create PostContent, PostMetadata, and ContentElement base classes in domain/value_objects
-  - Implement concrete ContentElement subclasses (TextElement, LinkElement, ImageElement, etc.)
-  - Add type-safe validation methods and immutable data structures
-  - _Requirements: 1.1, 1.2, 1.3, 4.1, 4.2, 4.3_
+- [x] 4. Migrate forum transport from requests to httpx
+  - Convert ForumClient thread fetch, login, and session-aware request paths to async methods backed by httpx.AsyncClient.
+  - Preserve cookies, headers, timeout behavior, and login-expiry detection during the migration.
+  - Keep the scheduler and notification flow working while removing event-loop blocking.
+  - _Requirements: 1.3, 5.1_
 
-- [ ] 2. Implement content parsing interfaces and base classes
-  - Create ContentParser abstract interface in domain/repositories
-  - Create ElementParser interface for individual element parsing
-  - Define ParseResult class with error handling capabilities
-  - _Requirements: 1.1, 1.5, 5.1, 5.2_
+- [x] 5. Implement the minimal forum content parser
+  - Parse root_post_html into the minimal AST with support for text, links, images, quotes, embeds, line breaks, and unknown nodes.
+  - Populate ParseResult with fallback_text, warnings, errors, and used_fallback.
+  - Degrade malformed elements to TextElement or UnknownElement instead of aborting the parse.
+  - _Requirements: 2.1, 2.3, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 3. Create forum-specific content parser implementation
-  - Implement ForumContentParser class in infrastructure/services
-  - Create individual ElementParser implementations (TextElementParser, LinkElementParser, etc.)
-  - Add HTML parsing logic that extracts structured data from forum posts
-  - _Requirements: 1.1, 1.2, 1.4, 3.1, 3.4_
+- [x] 6. Implement TelegramFormatter and TelegramPayload delivery rules
+  - Convert ParseResult into TelegramPayload with separate text and media outputs.
+  - Keep Telegram-specific escaping, preview, quote, and embed rendering rules inside the formatter.
+  - Avoid re-reading raw HTML during rendering.
+  - _Requirements: 4.1, 4.2, 4.3, 4.5_
 
-- [ ] 4. Implement content formatting interfaces and Telegram formatter
-  - Create ContentFormatter abstract interface in domain/repositories
-  - Implement TelegramFormatter class in infrastructure/services
-  - Add format-specific logic for converting structured content to Telegram messages
-  - _Requirements: 2.3, 5.1, 5.2, 5.3_
+- [x] 7. Create PostProcessingService and a processed-thread result
+  - Orchestrate fetch, extract, parse, and format into a single service entry point.
+  - Return a ProcessedThread-style result that exposes raw data, parse diagnostics, and TelegramPayload together.
+  - Keep the rest of the application insulated from intermediate pipeline details.
+  - _Requirements: 1.2, 3.5, 4.5, 5.1_
 
-- [ ] 5. Refactor ForumClient to extract raw data only
-  - Modify ForumClient.load_post_details to return RawPostData instead of processed strings
-  - Remove string formatting logic from forum client
-  - Preserve existing HTML extraction and metadata gathering functionality
-  - _Requirements: 2.1, 2.4_
+- [x] 8. Add a legacy compatibility adapter for ForumPost
+  - Keep ForumPost.content available as a string projection from structured content or fallback_text.
+  - Move lazy loading into a loader or adapter layer instead of keeping transport access inside immutable structured value objects.
+  - Deprecate direct Telegram formatting methods on ForumPost.
+  - _Requirements: 4.4, 5.1, 5.2, 5.3, 5.5_
 
-- [ ] 6. Create post processing service layer
-  - Implement PostProcessingService in application/services
-  - Integrate ContentParser and ContentFormatter through dependency injection
-  - Add orchestration logic for parsing and formatting pipeline
-  - _Requirements: 2.2, 2.3, 5.1, 5.4_
+- [x] 9. Integrate TelegramPayload into PostService and TelegramClient
+  - Update the send flow to consume TelegramPayload instead of calling ForumPost.to_telegram_message directly.
+  - Preserve the current end-user behavior while enabling media-aware delivery.
+  - Add a side-by-side comparison or feature-flagged rollout path for migration.
+  - _Requirements: 4.2, 5.1, 5.4_
 
-- [ ] 7. Update ForumPost model to support structured content
-  - Add structured_content property to ForumPost class
-  - Maintain backward compatibility with existing content property
-  - Implement lazy loading for structured content parsing
-  - _Requirements: 3.2, 3.3, 4.4_
+- [x] 10. Add regression tests and type-checking for the new pipeline
+  - Store golden HTML fixtures from real Keylol threads.
+  - Add extractor, parser, formatter, and adapter tests using the typed contracts.
+  - Configure pyright or mypy for the new structured-processing modules.
+  - _Requirements: 3.4, 6.2, 6.4, 6.5_
 
-- [ ] 8. Integrate structured parsing into PostService
-  - Update PostService to use PostProcessingService
-  - Modify post processing workflow to use structured content
-  - Ensure existing functionality remains intact during transition
-  - _Requirements: 2.2, 3.2, 5.4_
+- [x] 11. Remove obsolete legacy helpers after verification
+  - Delete or simplify the old string-focused parsing helpers in ForumClient once the new path is verified.
+  - Remove redundant formatting logic that remains in ForumPost or other legacy call paths.
+  - Keep the structured parser contract stable while legacy code is retired.
+  - _Requirements: 1.4, 5.5_
 
-- [ ] 9. Add comprehensive error handling and fallback mechanisms
-  - Implement graceful degradation when parsing fails
-  - Add element-level fallback to text extraction
-  - Create clear error messages for type validation failures
-  - _Requirements: 1.5, 4.5_
+## Deferred Work
 
-- [ ] 10. Create unit tests for all parsing and formatting components
-  - Write tests for each ContentElement type with known HTML fragments
-  - Test ContentParser implementations with sample forum HTML
-  - Test ContentFormatter with known PostContent structures
-  - Add integration tests for end-to-end parsing workflow
-  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
-
-- [ ] 11. Add type safety validation and schema enforcement
-  - Implement runtime type checking for all data structures
-  - Add schema validation for PostContent and ContentElement objects
-  - Create type-safe serialization and deserialization methods
-  - _Requirements: 4.1, 4.2, 4.3, 4.4_
-
-- [ ] 12. Implement extensibility features for new content types
-  - Create plugin system for registering new ElementParser implementations
-  - Add configuration system for enabling/disabling specific parsers
-  - Implement polymorphic handling of unknown content types
-  - _Requirements: 3.1, 3.3, 3.4_
+- A parser plugin system is intentionally deferred until there is a second real parser or forum source.
+- A generalized formatter abstraction is intentionally deferred until there is a second delivery target.
+- Full reply-tree parsing is intentionally deferred until the bot needs more than the root post.

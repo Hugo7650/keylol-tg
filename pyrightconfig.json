@@ -1,0 +1,25 @@
+{
+  "include": [
+    "domain/value_objects/structured_post.py",
+    "domain/repositories/structured_post.py",
+    "infrastructure/services/thread_page_extractor.py",
+    "infrastructure/services/latest_posts_page_extractor.py",
+    "infrastructure/services/legacy_forum_post_loader.py",
+    "infrastructure/services/forum_content_parser.py",
+    "infrastructure/services/telegram_formatter.py",
+    "infrastructure/services/legacy_telegram_payload_adapter.py",
+    "services/post_processing_service.py",
+    "clients/forum_client.py",
+    "test/test_structured_pipeline.py",
+    "test/test_forum_client_async.py",
+    "test/test_legacy_telegram_adapter.py",
+    "test/test_post_service_rollout.py"
+  ],
+  "exclude": [
+    ".venv",
+    "**/__pycache__"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false
+}

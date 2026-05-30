@@ -24,6 +24,16 @@ cp .env.example .env
 
 3. 编辑 `.env` 文件，填入你的配置信息
 
+	可选配置：`STRUCTURED_PIPELINE_MODE=structured|legacy|compare`
+	- `structured`: 只发送新的结构化 pipeline 输出
+	- `legacy`: 使用兼容 ForumPost 投影路径构建输出
+	- `compare`: 发送结构化输出，同时和 legacy 输出做并行比对并通知管理员差异
+
+	网络稳健性相关配置：
+	- `FORUM_REQUEST_RETRIES`: 论坛请求失败后的额外重试次数，默认 `2`
+	- `FORUM_RETRY_BACKOFF`: 重试退避基数秒数，默认 `1.0`，实际等待为 `1s`、`2s`、`4s` 递增
+	- 临时的 SSL EOF、连接中断、超时或 `5xx/429` 会先重试，再决定是否跳过本轮抓取
+
 4. 运行机器人：
 ```bash
 python main.py
