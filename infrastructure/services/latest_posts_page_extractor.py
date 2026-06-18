@@ -6,7 +6,6 @@ import lxml.etree as etree
 
 from domain.value_objects import FetchedLatestPostsPage
 from models.post import ForumPost
-from models.post import PostDetailsLoader
 
 
 class LatestPostsPageExtractionError(Exception):
@@ -21,7 +20,6 @@ class KeylolLatestPostsPageExtractor:
         page: FetchedLatestPostsPage,
         *,
         base_url: str,
-        details_loader: PostDetailsLoader,
         limit: Optional[int] = None,
     ) -> list[ForumPost]:
         tree = etree.HTML(page.html, parser=etree.HTMLParser())
@@ -35,7 +33,7 @@ class KeylolLatestPostsPageExtractor:
         posts: list[ForumPost] = []
         normalized_base_url = base_url.rstrip('/')
         for element in thread_elements:
-            post = self._extract_post(element, normalized_base_url, details_loader)
+            post = self._extract_post(element, normalized_base_url)
             if post is not None:
                 posts.append(post)
 
@@ -45,7 +43,6 @@ class KeylolLatestPostsPageExtractor:
         self,
         element: etree._Element,
         base_url: str,
-        details_loader: PostDetailsLoader,
     ) -> ForumPost | None:
         try:
             title = element.xpath('.//th[@class="common"]/a/text()')[0].strip()
@@ -58,7 +55,6 @@ class KeylolLatestPostsPageExtractor:
                 title=title,
                 url=url,
                 author=author,
-                details_loader=details_loader,
             )
         except (IndexError, ValueError, AttributeError):
             return None

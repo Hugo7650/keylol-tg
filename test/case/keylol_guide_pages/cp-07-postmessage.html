@@ -1,0 +1,87 @@
+<td class="t_f" id="postmessage_4796006">
+<br/>
+网易云音乐外链<br/>
+<br/>
+P.S <strong>2019年10月30号加入了快捷代码</strong>：<br/>
+使用[163]代码就可以加载网易云音乐，详情可见<a href="https://keylol.com/forum.php?mod=redirect&amp;goto=findpost&amp;ptid=532667&amp;pid=10130441" target="_blank">此处</a><br/>
+或者使用[163custom] 代码用来通过iframe插入网易云音乐，可以指定一些高级参数，详情可见<a href="https://keylol.com/forum.php?mod=redirect&amp;goto=findpost&amp;ptid=542527&amp;pid=10369913" target="_blank">此处</a><br/>
+<br/>
+这个是我今天看到一个帖子，进去就自动播放音乐，才知道的，并且也试了很多方法没有成功，当然最后还是摸索出来了<br/>
+首先我们要去找怎么获取网易云音乐的外链。<br/>
+随便点开一个歌单，，在图示位置会有“生成外链播放器”<br/>
+<ignore_js_op>
+<img aid="329804" class="zoom" file="https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg?a=a" id="aimg_329804" inpost="1" onclick="zoom(this, this.src, 0, 0, 1)" src="static/image/common/none.gif" width="800" zoomfile="https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg"/>
+<div class="tip tip_4 aimg_tip" disautofocus="true" id="aimg_329804_menu" style="position: absolute; display: none">
+<div class="xs0">
+<p><strong>生成外链.jpg</strong> <em class="xg1">(124.95 KB, 下载次数: 2)</em></p>
+<p>
+<a href="forum.php?mod=attachment&amp;aid=MzI5ODA0fDVkOWU2MmU1fDE3ODAxNjk5MTl8NzM4MTU2fDMwNzM3MA%3D%3D&amp;nothumb=yes" target="_blank">下载附件</a>
+</p>
+<p class="xg1 y">2017-9-9 19:25 上传</p>
+</div>
+<div class="tip_horn"></div>
+</div>
+</ignore_js_op>
+<br/>
+点击“生成外链播放器”会进入以下页面，我们选择flash插件，并选择是否自动播放，建议不要使用自动播放，当然你也可以恶搞一下，但是还是慎用。<br/>
+<ignore_js_op>
+<img aid="329807" class="zoom" file="https://blob.keylol.com/forum/201709/09/192923gemrgdzrtxxetkfj.jpg?a=a" id="aimg_329807" inpost="1" onclick="zoom(this, this.src, 0, 0, 1)" src="static/image/common/none.gif" width="800" zoomfile="https://blob.keylol.com/forum/201709/09/192923gemrgdzrtxxetkfj.jpg"/>
+<div class="tip tip_4 aimg_tip" disautofocus="true" id="aimg_329807_menu" style="position: absolute; display: none">
+<div class="xs0">
+<p><strong>网易云音乐外链.jpg</strong> <em class="xg1">(126.13 KB, 下载次数: 0)</em></p>
+<p>
+<a href="forum.php?mod=attachment&amp;aid=MzI5ODA3fDMwMjI1NTlkfDE3ODAxNjk5MTl8NzM4MTU2fDMwNzM3MA%3D%3D&amp;nothumb=yes" target="_blank">下载附件</a>
+</p>
+<p class="xg1 y">2017-9-9 19:29 上传</p>
+</div>
+<div class="tip_horn"></div>
+</div>
+</ignore_js_op>
+<br/>
+网易云音乐外链播放器方法一<br/>
+第一种 不设定大小的正常播放器<br/>
+此为自动播放代码<br/> <div class="blockcode"><div id="code_zSR"><ol><li>[flash]http://music.163.com/style/swf/widget.swf?sid=25706285&amp;type=2&amp;auto=1&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_zSR'));">复制代码</em></div><br>
+此为不自动播放代码<br/> <div class="blockcode"><div id="code_n33"><ol><li>[flash]http://music.163.com/style/swf/widget.swf?sid=25706285&amp;type=2&amp;auto=0&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_n33'));">复制代码</em></div><br>
+效果如下<br/>
+<span id="swf_S9S"></span><script reload="1" type="text/javascript">$('swf_S9S').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=25706285&amp;type=2&amp;auto=0&amp;width=320&amp;height=66'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+第二种 设定大小的非正常播放器（设置宽和高为1，可以打到隐藏播放器的效果——你找不到，你关不掉，小心被打死，慎用！）<br/> <div class="blockcode"><div id="code_tQN"><ol><li>[flash=200,200]http://music.163.com/style/swf/widget.swf?sid=25706285&amp;type=2&amp;auto=0&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_tQN'));">复制代码</em></div><br>
+我这里设定成200.200就会只显示出一半左右<br/>
+效果如下<br/>
+<span id="swf_zn8"></span><script reload="1" type="text/javascript">$('swf_zn8').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=25706285&amp;type=2&amp;auto=0&amp;width=320&amp;height=66'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+网易云音乐外链播放器方法二（由191楼 @Parry_z   dalao提供）<br/>
+<span style="color:Red">由于方法一会导致播放器那一栏和下面一行的间距非常大，虽然不会对阅读帖子产生很大影响，但会影响帖子的美观</span><br/>
+<br/>
+1、播放器尺寸为320×66，flash尺寸为340×86的正常播放器<br/>
+此为自动播放代码<br/> <div class="blockcode"><div id="code_Jte"><ol><li>[flash=340,86]http://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=1&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_Jte'));">复制代码</em></div><br>
+由于未知原因，调整flash大小之后无法实现自动播放。<br/>
+<br/>
+此为不自动播放代码<br/> <div class="blockcode"><div id="code_sty"><ol><li>[flash=340,86]http://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=0&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_sty'));">复制代码</em></div><br>
+<br/>
+效果如下<br/>
+<span id="swf_nGH"></span><script reload="1" type="text/javascript">$('swf_nGH').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=0&amp;width=320&amp;height=66'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+2、播放器尺寸278×32，flash尺寸为298×52的小播放器<br/> <div class="blockcode"><div id="code_RG8"><ol><li>[flash=298,52]http://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=0&amp;width=278&amp;height=32[/flash]<br/></li></ol></div><em onclick="copycode($('code_RG8'));">复制代码</em></div><br>
+<br/>
+效果如下<br/>
+<span id="swf_glA"></span><script reload="1" type="text/javascript">$('swf_glA').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=0&amp;width=278&amp;height=32'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+另外也可设定大小非正常的播放器——即自行修改flash框的大小（设置宽和高为1，可以打到隐藏播放器的效果——你找不到，你关不掉，小心被打死，慎用！）<br/> <div class="blockcode"><div id="code_rT7"><ol><li>[flash=200,200]http://music.163.com/style/swf/widget.swf?sid=29279200&amp;type=2&amp;auto=0&amp;width=320&amp;height=66[/flash]<br/></li></ol></div><em onclick="copycode($('code_rT7'));">复制代码</em></div><br>
+<br/>
+3、播放器尺寸为310×430，flash尺寸为330×450的<span style="color:Red">歌单播放器</span><br/>
+若需要放多首歌在一个播放器中，可以将“sid=”增加多个歌曲ID并用逗号隔开达到歌单的效果<br/>
+注意，此时的播放器尺寸为310×430，flash尺寸为330×450<br/> <div class="blockcode"><div id="code_Fcc"><ol><li>[flash=330,450]http://music.163.com/style/swf/widget.swf?sid=29279200,537854163,537854164,537854165&amp;type=2&amp;auto=0&amp;width=310&amp;height=430[/flash]<br/></li></ol></div><em onclick="copycode($('code_Fcc'));">复制代码</em></div><br>
+<br/>
+效果如下<br/>
+<span id="swf_MSK"></span><script reload="1" type="text/javascript">$('swf_MSK').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=29279200,537854163,537854164,537854165&amp;type=2&amp;auto=0&amp;width=310&amp;height=430'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+4、播放器尺寸为330×110，flash尺寸为310×90的<span style="color:Red">小尺寸歌单播放器</span><br/>
+此时歌单只可顺序播放或按下一个切歌，并无法打开歌单自行切歌<br/> <div class="blockcode"><div id="code_b5Y"><ol><li>[flash=330,110]http://music.163.com/style/swf/widget.swf?sid=29279200,537854163,537854164,537854165&amp;type=2&amp;auto=0&amp;width=310&amp;height=90[/flash]<br/></li></ol></div><em onclick="copycode($('code_b5Y'));">复制代码</em></div><br>
+<br/>
+效果如下<br/>
+<span id="swf_Aq9"></span><script reload="1" type="text/javascript">$('swf_Aq9').innerHTML=AC_FL_RunContent('width', '550', 'height', '400', 'allowNetworking', 'internal', 'allowScriptAccess', 'never', 'src', encodeURI('https://music.163.com/style/swf/widget.swf?sid=29279200,537854163,537854164,537854165&amp;type=2&amp;auto=0&amp;width=310&amp;height=90'), 'quality', 'high', 'bgcolor', '#ffffff', 'wmode', 'transparent', 'allowfullscreen', 'true');</script><br/>
+<br/>
+另外同单曲播放器一样，也可设定大小非正常的播放器，操作同上，坛友可以自行更改flash框中的数值<br/>
+<span style="color:Red">P.S. 若是添加了无法外链的歌曲ID，歌曲虽然能显示在歌单中，但仍然无法播放</span><br/>
+</br></br></br></br></br></br></br></br></br></td>

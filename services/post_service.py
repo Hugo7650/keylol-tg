@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Literal, Optional, Set, TYPE_CHECKING, cast
+from typing import Optional, Set, TYPE_CHECKING
 from datetime import datetime
 import json
 import os
@@ -11,15 +11,11 @@ from infrastructure.services import KeylolForumContentParser
 from infrastructure.services import KeylolThreadPageExtractor
 from infrastructure.services import TelegramFormatter
 from infrastructure.services.latest_posts_page_extractor import KeylolLatestPostsPageExtractor
-from infrastructure.services.legacy_forum_post_loader import LegacyForumPostLoader
 from models.post import ForumPost
 from services.post_processing_service import PostProcessingService
-from domain.value_objects import TelegramPayload
 
 if TYPE_CHECKING:
     from clients.telegram_client import TelegramClient
-
-StructuredPipelineMode = Literal["structured", "legacy", "compare"]
 
 class PostService:
     """帖子处理服务"""
@@ -34,8 +30,6 @@ class PostService:
         work_dir: Optional[str] = None,
         post_processing_service: Optional[PostProcessingService] = None,
         latest_posts_extractor: Optional[KeylolLatestPostsPageExtractor] = None,
-        legacy_post_loader: Optional[LegacyForumPostLoader] = None,
-        structured_pipeline_mode: str = "structured",
     ):
         self.forum_client = forum_client
         self.telegram_client = telegram_client
@@ -53,15 +47,6 @@ class PostService:
             formatter,
         )
         self.latest_posts_extractor = latest_posts_extractor or KeylolLatestPostsPageExtractor()
-        self.legacy_post_loader = legacy_post_loader or LegacyForumPostLoader(
-            forum_client,
-            thread_page_extractor,
-            content_parser,
-            base_url=forum_client.base_url,
-        )
-        self.structured_pipeline_mode = self._normalize_structured_pipeline_mode(
-            structured_pipeline_mode
-        )
         
         # 已处理的帖子ID集合
         self.processed_posts: Set[int] = set()
@@ -254,159 +239,31 @@ class PostService:
             )
             return False
 
-    def _normalize_structured_pipeline_mode(self, mode: str) -> StructuredPipelineMode:
-        normalized = mode.strip().lower()
-        if normalized not in {"structured", "legacy", "compare"}:
-            self.logger.warning(
-                f"未知的 STRUCTURED_PIPELINE_MODE={mode}，回退到 structured"
-            )
-            return "structured"
-        return cast(StructuredPipelineMode, normalized)
-
     async def _load_latest_posts(self) -> list[ForumPost]:
         latest_posts_page = await self.forum_client.fetch_latest_posts_page()
         return self.latest_posts_extractor.extract(
             latest_posts_page,
             base_url=self.forum_client.base_url,
-            details_loader=self.legacy_post_loader.load_post_details,
             limit=self.max_posts,
         )
 
     async def _deliver_post_to_channel(self, post: ForumPost) -> bool:
-        if self.structured_pipeline_mode == "legacy":
-            legacy_payload = await self._build_legacy_payload_for_post(
-                post,
-                disable_web_page_preview=False,
-            )
-            return await self.telegram_client.send_payload_to_channel(
-                self.channel_id,
-                legacy_payload,
-            )
-
         try:
             processed_thread = await self.post_processing_service.process_thread(post.id)
         except ForumTransportException:
             raise
-        except Exception:
-            if self.structured_pipeline_mode != "compare":
-                raise
-
-            self.logger.warning(f"结构化发送失败，回退到 legacy 路径: {post.id}")
-            legacy_payload = await self._build_legacy_payload_for_post(
-                post,
-                disable_web_page_preview=False,
-            )
-            return await self.telegram_client.send_payload_to_channel(
-                self.channel_id,
-                legacy_payload,
-            )
-
-        if self.structured_pipeline_mode == "compare":
-            try:
-                legacy_payload = await self._build_legacy_payload_for_post(
-                    post,
-                    disable_web_page_preview=False,
-                )
-            except ForumTransportException as e:
-                self.logger.warning(
-                    f"帖子 {post.id} 的 legacy 对比路径因网络异常被跳过: {e}"
-                )
-            else:
-                await self._report_payload_differences(
-                    post.id,
-                    legacy_payload,
-                    processed_thread.telegram_payload,
-                )
-
         return await self.telegram_client.send_payload_to_channel(
             self.channel_id,
             processed_thread.telegram_payload,
         )
 
     async def _deliver_thread_to_user(self, thread_id: int, user_id: int) -> bool:
-        legacy_post = self.legacy_post_loader.create_post(thread_id)
-
-        if self.structured_pipeline_mode == "legacy":
-            legacy_payload = await self._build_legacy_payload_for_post(
-                legacy_post,
-                disable_web_page_preview=True,
-            )
-            return await self.telegram_client.send_payload_to_user(user_id, legacy_payload)
-
         try:
             processed_thread = await self.post_processing_service.process_thread(thread_id)
         except ForumTransportException:
             raise
-        except Exception:
-            if self.structured_pipeline_mode != "compare":
-                raise
-
-            self.logger.warning(f"结构化私聊发送失败，回退到 legacy 路径: {thread_id}")
-            legacy_payload = await self._build_legacy_payload_for_post(
-                legacy_post,
-                disable_web_page_preview=True,
-            )
-            return await self.telegram_client.send_payload_to_user(user_id, legacy_payload)
-
-        if self.structured_pipeline_mode == "compare":
-            try:
-                legacy_payload = await self._build_legacy_payload_for_post(
-                    legacy_post,
-                    disable_web_page_preview=True,
-                )
-            except ForumTransportException as e:
-                self.logger.warning(
-                    f"帖子 {thread_id} 的 legacy 私聊对比路径因网络异常被跳过: {e}"
-                )
-            else:
-                await self._report_payload_differences(
-                    thread_id,
-                    legacy_payload,
-                    processed_thread.telegram_payload,
-                )
-
         return await self.telegram_client.send_payload_to_user(
             user_id,
             processed_thread.telegram_payload,
         )
 
-    async def _build_legacy_payload_for_post(
-        self,
-        post: ForumPost,
-        *,
-        disable_web_page_preview: bool,
-    ) -> TelegramPayload:
-        return await asyncio.to_thread(
-            self.telegram_client.build_legacy_payload_for_post,
-            post,
-            disable_web_page_preview=disable_web_page_preview,
-        )
-
-    async def _report_payload_differences(
-        self,
-        thread_id: int,
-        legacy_payload: TelegramPayload,
-        structured_payload: TelegramPayload,
-    ):
-        differences: list[str] = []
-        if legacy_payload.text != structured_payload.text:
-            differences.append("text")
-        if legacy_payload.media_urls != structured_payload.media_urls:
-            differences.append("media")
-        if (
-            legacy_payload.disable_web_page_preview
-            != structured_payload.disable_web_page_preview
-        ):
-            differences.append("preview")
-
-        if not differences:
-            return
-
-        self.logger.warning(
-            f"帖子 {thread_id} 的 structured/legacy 输出不一致: {', '.join(differences)}"
-        )
-        await self.telegram_client.send_admin_notification(
-            self.admin_id,
-            f"帖子 {thread_id} 的 structured/legacy 输出不一致: {', '.join(differences)}",
-        )
-    

@@ -1,6 +1,6 @@
 # Implementation Plan
 
-Status updated: 2026-05-30
+Status updated: 2026-05-31
 
 - [x] 1. Define the new structured-processing contracts
   - Create FetchedThreadPage, RootPostMetadata, RawThreadData, PostContent, ParseIssue, ParseResult, and TelegramPayload.
@@ -44,29 +44,29 @@ Status updated: 2026-05-30
   - Keep the rest of the application insulated from intermediate pipeline details.
   - _Requirements: 1.2, 3.5, 4.5, 5.1_
 
-- [x] 8. Add a legacy compatibility adapter for ForumPost
-  - Keep ForumPost.content available as a string projection from structured content or fallback_text.
-  - Move lazy loading into a loader or adapter layer instead of keeping transport access inside immutable structured value objects.
-  - Deprecate direct Telegram formatting methods on ForumPost.
-  - _Requirements: 4.4, 5.1, 5.2, 5.3, 5.5_
+- [x] 8. Retire temporary ForumPost compatibility layers
+  - Remove legacy output adapters and loader hooks once structured delivery is verified.
+  - Keep ForumPost as a minimal latest-posts summary model only.
+  - Keep Telegram formatting and sending outside ForumPost.
+  - _Requirements: 4.4, 5.2, 5.3, 5.4_
 
 - [x] 9. Integrate TelegramPayload into PostService and TelegramClient
   - Update the send flow to consume TelegramPayload instead of calling ForumPost.to_telegram_message directly.
   - Preserve the current end-user behavior while enabling media-aware delivery.
-  - Add a side-by-side comparison or feature-flagged rollout path for migration.
-  - _Requirements: 4.2, 5.1, 5.4_
+  - Keep channel and user forwarding on a single structured delivery path.
+  - _Requirements: 4.2, 5.1_
 
 - [x] 10. Add regression tests and type-checking for the new pipeline
   - Store golden HTML fixtures from real Keylol threads.
-  - Add extractor, parser, formatter, and adapter tests using the typed contracts.
+  - Add extractor, parser, formatter, and service rollout tests using the typed contracts.
   - Configure pyright or mypy for the new structured-processing modules.
   - _Requirements: 3.4, 6.2, 6.4, 6.5_
 
 - [x] 11. Remove obsolete legacy helpers after verification
   - Delete or simplify the old string-focused parsing helpers in ForumClient once the new path is verified.
-  - Remove redundant formatting logic that remains in ForumPost or other legacy call paths.
-  - Keep the structured parser contract stable while legacy code is retired.
-  - _Requirements: 1.4, 5.5_
+  - Remove redundant formatting logic, loaders, and fallback send paths from former legacy call sites.
+  - Keep the structured parser contract stable as the only production path.
+  - _Requirements: 1.4, 5.4_
 
 ## Deferred Work
 

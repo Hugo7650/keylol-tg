@@ -20,7 +20,6 @@ class Config:
     forum_async_timeout: float = float(os.getenv('FORUM_ASYNC_TIMEOUT', '30'))
     forum_request_retries: int = int(os.getenv('FORUM_REQUEST_RETRIES', '2'))
     forum_retry_backoff: float = float(os.getenv('FORUM_RETRY_BACKOFF', '1.0'))
-    structured_pipeline_mode: str = os.getenv('STRUCTURED_PIPELINE_MODE', 'structured').strip().lower()
     
     # 其他配置
     check_interval: int = int(os.getenv('CHECK_INTERVAL', '300'))  # 5分钟

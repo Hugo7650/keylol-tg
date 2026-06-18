@@ -1,5 +1,6 @@
 import asyncio
 import httpx
+import re
 import time
 from typing import Optional, Callable
 from datetime import datetime
@@ -208,7 +209,13 @@ class ForumClient:
                 operation=f"同步抓取帖子页面 {thread_id}",
             )
 
-        return self._build_thread_page(thread_id, response)
+            page_html = self._expand_thread_page_with_pagination_sync(
+                client,
+                thread_id,
+                response,
+            )
+
+        return self._build_thread_page(thread_id, response, html=page_html)
 
     def fetch_latest_posts_page_sync(self) -> FetchedLatestPostsPage:
         """同步抓取最新帖子列表页面原始 HTML。"""
@@ -237,7 +244,13 @@ class ForumClient:
             operation=f"抓取帖子页面 {thread_id}",
         )
 
-        return self._build_thread_page(thread_id, response)
+        page_html = await self._expand_thread_page_with_pagination_async(
+            client,
+            thread_id,
+            response,
+        )
+
+        return self._build_thread_page(thread_id, response, html=page_html)
 
     async def _send_async_request(
         self,
@@ -339,11 +352,18 @@ class ForumClient:
     def _is_retryable_status(self, status_code: int) -> bool:
         return status_code == 408 or status_code == 429 or status_code >= 500
 
-    def _build_thread_page(self, thread_id: int, response: httpx.Response) -> FetchedThreadPage:
+    def _build_thread_page(
+        self,
+        thread_id: int,
+        response: httpx.Response,
+        *,
+        html: str | None = None,
+    ) -> FetchedThreadPage:
         if response.status_code != 200:
             raise ForumLoginException(f"无法访问帖子页面: {thread_id}")
 
-        tree = etree.HTML(response.content, parser=etree.HTMLParser())
+        page_html = html if html is not None else response.text
+        tree = etree.HTML(page_html, parser=etree.HTMLParser())
         if self._is_login_required_response(str(response.url), tree):
             self.is_logged_in = False
             self.clear_session()
@@ -352,9 +372,195 @@ class ForumClient:
         return FetchedThreadPage(
             thread_id=thread_id,
             url=str(response.url),
-            html=response.text,
+            html=page_html,
             fetched_at=datetime.now(),
         )
+
+    async def _expand_thread_page_with_pagination_async(
+        self,
+        client: httpx.AsyncClient,
+        thread_id: int,
+        response: httpx.Response,
+    ) -> str:
+        page_html = response.text
+        post_id, page_numbers = self._extract_root_post_pagination(page_html)
+        if post_id is None or not page_numbers:
+            return page_html
+
+        merged_tree = etree.HTML(page_html, parser=etree.HTMLParser())
+        if merged_tree is None:
+            return page_html
+
+        base_container = self._find_post_content_container(merged_tree, post_id)
+        if base_container is None:
+            return page_html
+
+        for page_number in page_numbers:
+            ajax_response = await self._send_async_request(
+                client,
+                "GET",
+                self._build_threadindex_url(thread_id, post_id, page_number),
+                operation=f"抓取帖子分页 {thread_id} cp={page_number}",
+            )
+            self._append_paginated_fragment(
+                base_container,
+                post_id,
+                page_number,
+                self._extract_ajax_html(ajax_response.text),
+            )
+
+        return etree.tostring(merged_tree, encoding="unicode")
+
+    def _expand_thread_page_with_pagination_sync(
+        self,
+        client: httpx.Client,
+        thread_id: int,
+        response: httpx.Response,
+    ) -> str:
+        page_html = response.text
+        post_id, page_numbers = self._extract_root_post_pagination(page_html)
+        if post_id is None or not page_numbers:
+            return page_html
+
+        merged_tree = etree.HTML(page_html, parser=etree.HTMLParser())
+        if merged_tree is None:
+            return page_html
+
+        base_container = self._find_post_content_container(merged_tree, post_id)
+        if base_container is None:
+            return page_html
+
+        for page_number in page_numbers:
+            ajax_response = self._send_sync_request(
+                client,
+                "GET",
+                self._build_threadindex_url(thread_id, post_id, page_number),
+                operation=f"同步抓取帖子分页 {thread_id} cp={page_number}",
+            )
+            self._append_paginated_fragment(
+                base_container,
+                post_id,
+                page_number,
+                self._extract_ajax_html(ajax_response.text),
+            )
+
+        return etree.tostring(merged_tree, encoding="unicode")
+
+    def _extract_root_post_pagination(self, page_html: str) -> tuple[int | None, list[int]]:
+        tree = etree.HTML(page_html, parser=etree.HTMLParser())
+        if tree is None:
+            return None, []
+
+        post_elements = tree.xpath('//div[@id="postlist"]/div[starts-with(@id, "post_")]')
+        if not post_elements:
+            return None, []
+
+        post_id_text = post_elements[0].get("id", "")
+        try:
+            post_id = int(post_id_text.split("_")[-1])
+        except ValueError:
+            return None, []
+
+        page_numbers: set[int] = set()
+        for value in post_elements[0].xpath('.//*[@id="threadindex"]//*[@page]/@page'):
+            try:
+                page_number = int(value)
+            except ValueError:
+                continue
+            if page_number > 1:
+                page_numbers.add(page_number)
+
+        if not page_numbers:
+            attributes = post_elements[0].xpath('.//@href | .//@onclick')
+            for attribute in attributes:
+                for match in re.findall(r'cp=(\d+)', attribute):
+                    page_number = int(match)
+                    if page_number > 1:
+                        page_numbers.add(page_number)
+
+        return post_id, sorted(page_numbers)
+
+    def _build_threadindex_url(self, thread_id: int, post_id: int, page_number: int) -> str:
+        return (
+            f"{self.base_url}/forum.php?mod=viewthread&threadindex=yes"
+            f"&tid={thread_id}&viewpid={post_id}&cp={page_number}&inajax=1"
+            f"&ajaxtarget=post_{post_id}"
+        )
+
+    def _extract_ajax_html(self, response_text: str) -> str:
+        match = re.search(r'<!\[CDATA\[(.*)\]\]>', response_text, re.S)
+        if match:
+            return match.group(1)
+        return response_text
+
+    def _find_post_content_container(
+        self,
+        tree: etree._Element,
+        post_id: int,
+    ) -> etree._Element | None:
+        containers = tree.xpath(
+            f'//*[@id="postmessage_{post_id}" or @id="postpw_{post_id}"]'
+        )
+        if not containers:
+            return None
+        return containers[0]
+
+    def _append_paginated_fragment(
+        self,
+        base_container: etree._Element,
+        post_id: int,
+        page_number: int,
+        fragment_html: str,
+    ):
+        fragment_tree = etree.HTML(fragment_html, parser=etree.HTMLParser())
+        if fragment_tree is None:
+            return
+
+        page_container = self._find_post_content_container(fragment_tree, post_id)
+        if page_container is None:
+            return
+
+        threadindex = page_container.xpath('.//*[@id="threadindex"]')
+        for element in threadindex:
+            parent = element.getparent()
+            if parent is not None:
+                parent.remove(element)
+
+        separator = etree.Element(
+            "div",
+            attrib={
+                "class": "keylol-page-break",
+                "data-keylol-cp": str(page_number),
+            },
+        )
+        separator.append(etree.Element("br"))
+        separator.append(etree.Element("br"))
+        base_container.append(separator)
+
+        wrapper = etree.Element(
+            "div",
+            attrib={
+                "class": "keylol-page-fragment",
+                "data-keylol-cp": str(page_number),
+                "data-keylol-container-kind": self._resolve_content_container_kind(
+                    page_container
+                ),
+            },
+        )
+        if page_container.text:
+            wrapper.text = page_container.text
+
+        for child in list(page_container):
+            page_container.remove(child)
+            wrapper.append(child)
+
+        base_container.append(wrapper)
+
+    def _resolve_content_container_kind(self, page_container: etree._Element) -> str:
+        container_id = page_container.get("id", "")
+        if container_id.startswith("postpw_"):
+            return "postpw"
+        return "postmessage"
 
     def _build_latest_posts_page(self, response: httpx.Response) -> FetchedLatestPostsPage:
         if response.status_code != 200:

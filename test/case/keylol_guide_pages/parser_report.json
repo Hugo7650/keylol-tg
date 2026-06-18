@@ -1,0 +1,1505 @@
+[
+  {
+    "cp": 1,
+    "title_guess": "论坛的代码各种各样，可能之前玩过类似论坛的会比较熟悉一点，像我这种只玩过CN的估计也占了大部分，很多人会说",
+    "text_head": [
+      "论坛的代码各种各样，可能之前玩过类似论坛的会比较熟悉一点，像我这种只玩过CN的估计也占了大部分，很多人会说",
+      "妈妈，妈妈",
+      "他们这个帖子里的那个音乐播放器好特殊啊，我也好想要！",
+      "于是各种翻，各种找，然后还是找不到，一脸懵，有木有？于是呼就有了我这篇帖子，虽然我们敬（P）爱（Y）的",
+      "PG在早期发过一份论坛代码使用的帖子",
+      "，但是我觉得那个帖子已经有点年代了，很多东西中间也尚未介绍到，所以打算整合一下问题，做个帖子。",
+      "然后给个建议就是使用代码的时候请点击右上角“纯文本模式”编辑，否则可能失效或出现其他奇怪的现象！注意！注意！",
+      "本帖内所有的代码空格去掉才会生效"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 2
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 11,
+      "TextElement": 8,
+      "LinkElement": 1,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/202107/05/011719m56ijjccckv5b4bv.png?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "论坛的代码各种各样，可能之前玩过类似论坛的会比较熟悉一点，像我这种只玩过CN的估计也占了大部分，很多人会说 妈妈，妈妈 他们这个帖子里的那个音乐播放器好特殊啊，我也好想要！",
+      "",
+      "于是各种翻，各种找，然后还是找不到，一脸懵，有木有？于是呼就有了我这篇帖子，虽然我们敬（P）爱（Y）的 PG在早期发过一份论坛代码使用的帖子，但是我觉得那个帖子已经有点年代了，很多东西中间也尚未介绍到，所以打算整合一下问题，做个帖子。",
+      "",
+      "然后给个建议就是使用代码的时候请点击右上角“纯文本模式”编辑，否则可能失效或出现其他奇怪的现象！注意！注意！",
+      "",
+      "本帖内所有的代码空格去掉才会生效",
+      "",
+      "由于是单人制作，会有些许遗漏和错误，请各位dalao指出，我会及时改正。",
+      "https://blob.keylol.com/forum/202107/05/011719m56ijjccckv5b4bv.png?a=a"
+    ],
+    "payload_head": [
+      "**论坛的代码各种各样，可能之前玩过类似论坛的会比较熟悉一点，像我这种只玩过CN的估计也占了大部分，很多人会说**",
+      "740731172 \\ 2017-09-09 22:04",
+      "论坛的代码各种各样，可能之前玩过类似论坛的会比较熟悉一点，像我这种只玩过CN的估计也占了大部分，很多人会说 妈妈，妈妈 他们这个帖子里的那个音乐播放器好特殊啊，我也好想要！",
+      "",
+      "于是各种翻，各种找，然后还是找不到，一脸懵，有木有？于是呼就有了我这篇帖子，虽然我们敬（P）爱（Y）的 PG在早期发过一份论坛代码使用的帖子，但是我觉得那个帖子已经有点年代了，很多东西中间也尚未介绍到，所以打算整合一下问题，做个帖子。",
+      "",
+      "然后给个建议就是使用代码的时候请点击右上角“纯文本模式”编辑，否则可能失效或出现其他奇怪的现象！注意！注意！",
+      "",
+      "本帖内所有的代码空格去掉才会生效",
+      "",
+      "由于是单人制作，会有些许遗漏和错误，请各位dalao指出，我会及时改正。",
+      "https://blob.keylol.com/forum/202107/05/011719m56ijjccckv5b4bv.png?a=a"
+    ],
+    "link_urls": [
+      "https://keylol.com/t111100-1-1",
+      "https://blob.keylol.com/forum/202107/05/011719m56ijjccckv5b4bv.png?a=a"
+    ]
+  },
+  {
+    "cp": 2,
+    "title_guess": "",
+    "text_head": [],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 1
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [],
+    "payload_head": [
+      "**cp-02**",
+      "740731172 \\ 2017-09-09 22:04",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=2&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": []
+  },
+  {
+    "cp": 3,
+    "title_guess": "添加代码文字",
+    "text_head": [
+      "添加代码文字",
+      "很多情况下我们想要告诉别人这个代码怎么写，但是你一输入代码发出去之后就回变成代码的效果，这是后就需要这个代码来解决了",
+      "[ code ]代码文字[ /code ]",
+      "复制代码",
+      "由于这个代码有bug所以这个代码文字我无法正常发出，所以我加了空格。效果图也就是上面那个样子了",
+      "当然你也可以把一些别人需要复制的东西放进去，这样别人点一下即可复制内容"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 13,
+      "TextElement": 6
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "添加代码文字",
+      "很多情况下我们想要告诉别人这个代码怎么写，但是你一输入代码发出去之后就回变成代码的效果，这是后就需要这个代码来解决了",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "[ code ]代码文字[ /code ]",
+      "复制代码"
+    ],
+    "payload_head": [
+      "**添加代码文字**",
+      "740731172 \\ 2017-09-09 22:04",
+      "添加代码文字",
+      "很多情况下我们想要告诉别人这个代码怎么写，但是你一输入代码发出去之后就回变成代码的效果，这是后就需要这个代码来解决了",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "[ code ]代码文字[ /code ]",
+      "复制代码"
+    ],
+    "link_urls": []
+  },
+  {
+    "cp": 4,
+    "title_guess": "添加隐藏内容，剧透内容和折叠内容",
+    "text_head": [
+      "添加隐藏内容，剧透内容和折叠内容",
+      "这类代码有好多种类和用法，我们一个一个来说",
+      "第一种 隐藏，可偷看",
+      "[2级或者以上]",
+      "[hide]隐藏内容[/hide]",
+      "复制代码",
+      "效果如下",
+      "本帖隐藏的内容（有 1339 人偷偷看过）"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 2,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 2,
+      "link_count": 7
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 59,
+      "TextElement": 59,
+      "ImageElement": 2
+    },
+    "media_urls": [
+      "https://keylol.com/static/image/common/bb_spoil_v2a.png",
+      "https://keylol.com/static/image/common/bb_spoiler_v2.png"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "添加隐藏内容，剧透内容和折叠内容",
+      "",
+      "这类代码有好多种类和用法，我们一个一个来说",
+      "",
+      "第一种 隐藏，可偷看 [2级或者以上]",
+      "[hide]隐藏内容[/hide]",
+      "复制代码",
+      "效果如下",
+      "本帖隐藏的内容（有 1339 人偷偷看过）",
+      "隐藏内容"
+    ],
+    "payload_head": [
+      "**添加隐藏内容，剧透内容和折叠内容**",
+      "740731172 \\ 2017-09-09 22:04",
+      "添加隐藏内容，剧透内容和折叠内容",
+      "",
+      "这类代码有好多种类和用法，我们一个一个来说",
+      "",
+      "第一种 隐藏，可偷看 [2级或者以上]",
+      "[hide]隐藏内容[/hide]",
+      "复制代码",
+      "效果如下",
+      "本帖隐藏的内容（有 1339 人偷偷看过）",
+      "隐藏内容"
+    ],
+    "link_urls": [
+      "https://keylol.com/static/image/common/bb_spoil_v2a.png",
+      "https://keylol.com/static/image/common/bb_spoiler_v2.png"
+    ]
+  },
+  {
+    "cp": 5,
+    "title_guess": "steam链接",
+    "text_head": [
+      "steam链接",
+      "这个代码算是比较常用的，其实很简单只要把steam商店页面的URL复制，然后使用编辑帖子的添加链接的快捷按钮粘贴上去即可",
+      "当然这个方法不仅适用于steam商店，其他的链接也可以这么去做",
+      "[url=链接地址]链接显示[/url]",
+      "复制代码",
+      "[url=http://store.steampowered.com/app/730/CounterStrike_Global_Offensive/]Counter-Strike: Global Offensive[/url]",
+      "复制代码",
+      "其中steam商店的URL可以简化为"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 3
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 15,
+      "TextElement": 13,
+      "LinkElement": 3
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "steam链接",
+      "这个代码算是比较常用的，其实很简单只要把steam商店页面的URL复制，然后使用编辑帖子的添加链接的快捷按钮粘贴上去即可",
+      "当然这个方法不仅适用于steam商店，其他的链接也可以这么去做",
+      "[url=链接地址]链接显示[/url]",
+      "复制代码 [url=http://store.steampowered.com/app/730/CounterStrike_Global_Offensive/]Counter-Strike: Global Offensive[/url]",
+      "复制代码",
+      "其中steam商店的URL可以简化为 http://store.steampowered.com/app/730/",
+      "[url=http://store.steampowered.com/app/730/]Counter-Strike: Global Offensive[/url]",
+      "复制代码",
+      ""
+    ],
+    "payload_head": [
+      "**steam链接**",
+      "740731172 \\ 2017-09-09 22:04",
+      "steam链接",
+      "这个代码算是比较常用的，其实很简单只要把steam商店页面的URL复制，然后使用编辑帖子的添加链接的快捷按钮粘贴上去即可",
+      "当然这个方法不仅适用于steam商店，其他的链接也可以这么去做",
+      "[url=链接地址]链接显示[/url]",
+      "复制代码 [url=http://store.steampowered.com/app/730/CounterStrike_Global_Offensive/]Counter-Strike: Global Offensive[/url]",
+      "复制代码",
+      "其中steam商店的URL可以简化为 http://store.steampowered.com/app/730/",
+      "[url=http://store.steampowered.com/app/730/]Counter-Strike: Global Offensive[/url]",
+      "复制代码",
+      ""
+    ],
+    "link_urls": [
+      "http://store.steampowered.com/app/730/",
+      "http://store.steampowered.com/app/730/",
+      "http://steam.depar.me/GameMatch/"
+    ]
+  },
+  {
+    "cp": 6,
+    "title_guess": "steam商店信息",
+    "text_head": [
+      "steam商店信息",
+      "这个代码分为两种，一种是单一游戏的购买信息，另一种是集合包的购买信息",
+      "这个代码需要用到游戏的app ID，app ID可以通过",
+      "https://steamdb.info/",
+      "进行查询",
+      "app ID其实就是商店链接末尾的数字，比如CSGO的App ID就是730",
+      "第一种",
+      "Steam商店信息盒（app）"
+    ],
+    "features": {
+      "iframe_count": 3,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 3,
+      "link_count": 25
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 34,
+      "TextElement": 51,
+      "LinkElement": 22,
+      "ImageElement": 3,
+      "EmbedElement": 3
+    },
+    "media_urls": [
+      "https://keylol.com/static/image/common/bb_steamframe_v2.png",
+      "https://store.steampowered.com/app/730/?utm_source=keylol",
+      "https://keylol.com/static/image/common/bb_steampack_v2.png",
+      "https://blob.keylol.com/forum/201709/09/191354ypziiblgz5zbq29p.jpg?a=a",
+      "https://store.steampowered.com/app/274940/49961/?utm_source=keylol",
+      "https://store.steamchina.com/app/730/?utm_source=keylol"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "steam商店信息",
+      "这个代码分为两种，一种是单一游戏的购买信息，另一种是集合包的购买信息",
+      "这个代码需要用到游戏的app ID，app ID可以通过 https://steamdb.info/ 进行查询",
+      "app ID其实就是商店链接末尾的数字，比如CSGO的App ID就是730",
+      "第一种 https://keylol.com/static/image/common/bb_steamframe_v2.png Steam商店信息盒（app）",
+      "[sframe]游戏的app ID[/sframe]",
+      "复制代码 [sframe]730[/sframe]",
+      "复制代码",
+      "效果如下",
+      "Steam"
+    ],
+    "payload_head": [
+      "**steam商店信息**",
+      "740731172 \\ 2017-09-09 22:04",
+      "steam商店信息",
+      "这个代码分为两种，一种是单一游戏的购买信息，另一种是集合包的购买信息",
+      "这个代码需要用到游戏的app ID，app ID可以通过 https://steamdb.info/ 进行查询",
+      "app ID其实就是商店链接末尾的数字，比如CSGO的App ID就是730",
+      "第一种 https://keylol.com/static/image/common/bb_steamframe_v2.png Steam商店信息盒（app）",
+      "[sframe]游戏的app ID[/sframe]",
+      "复制代码 [sframe]730[/sframe]",
+      "复制代码",
+      "效果如下",
+      "Steam"
+    ],
+    "link_urls": [
+      "https://steamdb.info/",
+      "https://keylol.com/static/image/common/bb_steamframe_v2.png",
+      "https://store.steampowered.com/app/730/?utm_source=keylol",
+      "https://store.steampowered.com/app/730/",
+      "https://store.steampowered.com/app/730/#app_reviews_hash",
+      "https://keylol.com/plugin.php?id=keylol_tags:redirect&appid=730",
+      "https://steamdb.info/app/730/",
+      "https://astats.astats.nl/astats/Steam_Game_Info.php?AppID=730",
+      "https://www.steamcardexchange.net/index.php?gamepage-appid-730",
+      "https://barter.vg/steam/app/730/",
+      "steam://nav/games/details/730",
+      "steam://install/730",
+      "https://keylol.com/static/image/common/bb_steampack_v2.png",
+      "http://store.steampowered.com/sub/",
+      "http://store.steampowered.com/bundle/",
+      "http://store.steampowered.com/app/274940/",
+      "https://blob.keylol.com/forum/201709/09/191354ypziiblgz5zbq29p.jpg?a=a",
+      "https://store.steampowered.com/app/274940/49961/?utm_source=keylol",
+      "https://store.steamchina.com/app/730/?utm_source=keylol",
+      "https://store.steamchina.com/app/730/"
+    ]
+  },
+  {
+    "cp": 7,
+    "title_guess": "网易云音乐外链",
+    "text_head": [
+      "网易云音乐外链",
+      "P.S",
+      "2019年10月30号加入了快捷代码",
+      "：",
+      "使用[163]代码就可以加载网易云音乐，详情可见",
+      "此处",
+      "或者使用[163custom] 代码用来通过iframe插入网易云音乐，可以指定一些高级参数，详情可见",
+      "此处"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 2,
+      "link_count": 4
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 77,
+      "TextElement": 57,
+      "LinkElement": 2,
+      "ImageElement": 2
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/192923gemrgdzrtxxetkfj.jpg?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "网易云音乐外链",
+      "",
+      "P.S 2019年10月30号加入了快捷代码：",
+      "使用[163]代码就可以加载网易云音乐，详情可见 此处",
+      "或者使用[163custom] 代码用来通过iframe插入网易云音乐，可以指定一些高级参数，详情可见 此处",
+      "",
+      "这个是我今天看到一个帖子，进去就自动播放音乐，才知道的，并且也试了很多方法没有成功，当然最后还是摸索出来了",
+      "首先我们要去找怎么获取网易云音乐的外链。",
+      "随便点开一个歌单，，在图示位置会有“生成外链播放器”",
+      "https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg?a=a"
+    ],
+    "payload_head": [
+      "**网易云音乐外链**",
+      "740731172 \\ 2017-09-09 22:04",
+      "网易云音乐外链",
+      "",
+      "P.S 2019年10月30号加入了快捷代码：",
+      "使用[163]代码就可以加载网易云音乐，详情可见 此处",
+      "或者使用[163custom] 代码用来通过iframe插入网易云音乐，可以指定一些高级参数，详情可见 此处",
+      "",
+      "这个是我今天看到一个帖子，进去就自动播放音乐，才知道的，并且也试了很多方法没有成功，当然最后还是摸索出来了",
+      "首先我们要去找怎么获取网易云音乐的外链。",
+      "随便点开一个歌单，，在图示位置会有“生成外链播放器”",
+      "https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg?a=a"
+    ],
+    "link_urls": [
+      "https://keylol.com/forum.php?mod=redirect&goto=findpost&ptid=532667&pid=10130441",
+      "https://keylol.com/forum.php?mod=redirect&goto=findpost&ptid=542527&pid=10369913",
+      "https://blob.keylol.com/forum/201709/09/192505iepgewueemubpglm.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/192923gemrgdzrtxxetkfj.jpg?a=a"
+    ]
+  },
+  {
+    "cp": 8,
+    "title_guess": "B站视频搬运到论坛",
+    "text_head": [
+      "B站视频搬运到论坛",
+      "[media=x,窗口,大小]http://www.bilibili.com/video/视频编号（通常在标题下方）/[/media]",
+      "复制代码",
+      "示例代码",
+      "[media=x,1000,750]http://www.bilibili.com/video/AV12139404/[/media]",
+      "复制代码",
+      "效果如下"
+    ],
+    "features": {
+      "iframe_count": 1,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 1,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 9,
+      "TextElement": 7,
+      "EmbedElement": 1
+    },
+    "media_urls": [
+      "https://keylol.com/source/plugin/onexin_html5player/open/bilibili/html5player.html?aid=12139404&page="
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "B站视频搬运到论坛",
+      "[media=x,窗口,大小]http://www.bilibili.com/video/视频编号（通常在标题下方）/[/media]",
+      "复制代码",
+      "示例代码",
+      "[media=x,1000,750]http://www.bilibili.com/video/AV12139404/[/media]",
+      "复制代码",
+      "效果如下",
+      "Bilibili"
+    ],
+    "payload_head": [
+      "**B站视频搬运到论坛**",
+      "740731172 \\ 2017-09-09 22:04",
+      "B站视频搬运到论坛",
+      "[media=x,窗口,大小]http://www.bilibili.com/video/视频编号（通常在标题下方）/[/media]",
+      "复制代码",
+      "示例代码",
+      "[media=x,1000,750]http://www.bilibili.com/video/AV12139404/[/media]",
+      "复制代码",
+      "效果如下",
+      "Bilibili",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=8&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": [
+      "https://keylol.com/source/plugin/onexin_html5player/open/bilibili/html5player.html?aid=12139404&page="
+    ]
+  },
+  {
+    "cp": 9,
+    "title_guess": "优酷的比较简单直接把网址复制",
+    "text_head": [
+      "优酷的比较简单直接把网址复制",
+      "[media=x,1000,750]优酷视频播放网址[/media]",
+      "复制代码"
+    ],
+    "features": {
+      "iframe_count": 1,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 1,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 5,
+      "TextElement": 3,
+      "EmbedElement": 1
+    },
+    "media_urls": [
+      "https://keylol.com/source/plugin/onexin_html5player/open/youku/html5player.html?vid=XMjY1OTc0NDUyNA==&autoplay=false"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "优酷的比较简单直接把网址复制",
+      "[media=x,1000,750]优酷视频播放网址[/media]",
+      "复制代码",
+      "视频"
+    ],
+    "payload_head": [
+      "**优酷的比较简单直接把网址复制**",
+      "740731172 \\ 2017-09-09 22:04",
+      "优酷的比较简单直接把网址复制",
+      "[media=x,1000,750]优酷视频播放网址[/media]",
+      "复制代码",
+      "视频",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=9&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": [
+      "https://keylol.com/source/plugin/onexin_html5player/open/youku/html5player.html?vid=XMjY1OTc0NDUyNA==&autoplay=false"
+    ]
+  },
+  {
+    "cp": 10,
+    "title_guess": "[b]粗体文字 Abc[/b]",
+    "text_head": [
+      "[b]粗体文字 Abc[/b]",
+      "复制代码",
+      "粗体文字 Abc",
+      "[i]斜体文字 Abc[/i]",
+      "复制代码",
+      "斜体文字 Abc",
+      "[u]下划线文字 Abc[/u]",
+      "复制代码"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 1,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 56,
+      "TextElement": 48,
+      "QuoteElement": 1,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://wpa.qq.com/pa?p=1:10001:1"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "[b]粗体文字 Abc[/b]",
+      "复制代码",
+      "粗体文字 Abc",
+      "",
+      "[i]斜体文字 Abc[/i]",
+      "复制代码",
+      "斜体文字 Abc",
+      "",
+      "[u]下划线文字 Abc[/u]",
+      "复制代码"
+    ],
+    "payload_head": [
+      "**[b]粗体文字 Abc[/b]**",
+      "740731172 \\ 2017-09-09 22:04",
+      "[b]粗体文字 Abc[/b]",
+      "复制代码",
+      "粗体文字 Abc",
+      "",
+      "[i]斜体文字 Abc[/i]",
+      "复制代码",
+      "斜体文字 Abc",
+      "",
+      "[u]下划线文字 Abc[/u]",
+      "复制代码"
+    ],
+    "link_urls": [
+      "https://wpa.qq.com/pa?p=1:10001:1"
+    ]
+  },
+  {
+    "cp": 11,
+    "title_guess": "[fly]飞行代码[/fly]",
+    "text_head": [
+      "[fly]飞行代码[/fly]",
+      "复制代码",
+      "飞行代码",
+      "因为炫酷",
+      "所以独占一页"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 6,
+      "TextElement": 5
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "[fly]飞行代码[/fly]",
+      "复制代码",
+      "飞行代码",
+      "因为炫酷",
+      "所以独占一页"
+    ],
+    "payload_head": [
+      "**[fly]飞行代码[/fly]**",
+      "740731172 \\ 2017-09-09 22:04",
+      "[fly]飞行代码[/fly]",
+      "复制代码",
+      "飞行代码",
+      "因为炫酷",
+      "所以独占一页",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=11&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": []
+  },
+  {
+    "cp": 12,
+    "title_guess": "目录代码",
+    "text_head": [
+      "目录代码",
+      "由于目录代码的特殊所以我在括号两边加上了空格",
+      "[ index ]",
+      "[#1]目录1",
+      "[#2]目录2",
+      "[ /index ]",
+      "目录1内容",
+      "[ page ]"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 33,
+      "TextElement": 29,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/205247cqawhahynphdhbz7.jpg?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "目录代码",
+      "由于目录代码的特殊所以我在括号两边加上了空格",
+      "[ index ]",
+      "[#1]目录1",
+      "[#2]目录2",
+      "[ /index ]",
+      "目录1内容",
+      "[ page ]",
+      "目录2内容",
+      "复制代码"
+    ],
+    "payload_head": [
+      "**目录代码**",
+      "740731172 \\ 2017-09-09 22:04",
+      "目录代码",
+      "由于目录代码的特殊所以我在括号两边加上了空格",
+      "[ index ]",
+      "[#1]目录1",
+      "[#2]目录2",
+      "[ /index ]",
+      "目录1内容",
+      "[ page ]",
+      "目录2内容",
+      "复制代码"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201709/09/205247cqawhahynphdhbz7.jpg?a=a"
+    ]
+  },
+  {
+    "cp": 13,
+    "title_guess": "狗头版主推荐的一些第三方外链图床传送门：",
+    "text_head": [
+      "狗头版主推荐的一些第三方外链图床传送门：",
+      "【整合】第三方外链图床",
+      "图床一般都是写成就贴，写攻略帖，写评测贴之类的需要大量图片的帖子使用的",
+      "因为CN每天图片上传大小是有限的，所以建议再写多图贴的时候，使用图床",
+      "[img]图片地址[/img]",
+      "复制代码",
+      "[img]https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg[/img]",
+      "复制代码"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 1,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 9,
+      "TextElement": 8,
+      "LinkElement": 1,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "狗头版主推荐的一些第三方外链图床传送门： 【整合】第三方外链图床",
+      "图床一般都是写成就贴，写攻略帖，写评测贴之类的需要大量图片的帖子使用的",
+      "因为CN每天图片上传大小是有限的，所以建议再写多图贴的时候，使用图床",
+      "[img]图片地址[/img]",
+      "复制代码 [img]https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg[/img]",
+      "复制代码",
+      "效果如下",
+      "https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg"
+    ],
+    "payload_head": [
+      "**狗头版主推荐的一些第三方外链图床传送门：**",
+      "740731172 \\ 2017-09-09 22:04",
+      "狗头版主推荐的一些第三方外链图床传送门： 【整合】第三方外链图床",
+      "图床一般都是写成就贴，写攻略帖，写评测贴之类的需要大量图片的帖子使用的",
+      "因为CN每天图片上传大小是有限的，所以建议再写多图贴的时候，使用图床",
+      "[img]图片地址[/img]",
+      "复制代码 [img]https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg[/img]",
+      "复制代码",
+      "效果如下",
+      "https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=13&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": [
+      "https://keylol.com/t360048-1-1",
+      "https://blob.keylol.com/forum/201709/09/021527ox3x4x35zb3d3x35.jpg"
+    ]
+  },
+  {
+    "cp": 14,
+    "title_guess": "个人对表格制作的建议是用word做完之后使用论坛编辑里面的从word粘贴内容，其中很可能会多余一些代码，到时候把代码删掉即可",
+    "text_head": [
+      "个人对表格制作的建议是用word做完之后使用论坛编辑里面的从word粘贴内容，其中很可能会多余一些代码，到时候把代码删掉即可",
+      "[table]",
+      "[tr][td=229][align=center]代码[/align][/td][td=229][align=center]1[/align][/td][td=229][align=center]3[/align][/td][/tr]",
+      "[tr][td=229][align=center]测试[/align][/td][td=229][align=center]2[/align][/td][td=229][align=center]4[/align][/td][/tr]",
+      "[/table]",
+      "复制代码",
+      "效果如下",
+      "代码"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 1,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 13,
+      "TextElement": 14,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/220119f929zdnnhysbddkc.jpg?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "个人对表格制作的建议是用word做完之后使用论坛编辑里面的从word粘贴内容，其中很可能会多余一些代码，到时候把代码删掉即可",
+      "[table]",
+      "[tr][td=229][align=center]代码[/align][/td][td=229][align=center]1[/align][/td][td=229][align=center]3[/align][/td][/tr]",
+      "[tr][td=229][align=center]测试[/align][/td][td=229][align=center]2[/align][/td][td=229][align=center]4[/align][/td][/tr]",
+      "[/table]",
+      "复制代码",
+      "效果如下",
+      "代码 1 3 测试 2 4",
+      "",
+      "以下是论坛的快速添加表格"
+    ],
+    "payload_head": [
+      "**个人对表格制作的建议是用word做完之后使用论坛编辑里面的从word粘贴内容，其中很可能会多余一些代码，到时候把代码删掉即可**",
+      "740731172 \\ 2017-09-09 22:04",
+      "个人对表格制作的建议是用word做完之后使用论坛编辑里面的从word粘贴内容，其中很可能会多余一些代码，到时候把代码删掉即可",
+      "[table]",
+      "[tr][td=229][align=center]代码[/align][/td][td=229][align=center]1[/align][/td][td=229][align=center]3[/align][/td][/tr]",
+      "[tr][td=229][align=center]测试[/align][/td][td=229][align=center]2[/align][/td][td=229][align=center]4[/align][/td][/tr]",
+      "[/table]",
+      "复制代码",
+      "效果如下",
+      "代码 1 3 测试 2 4",
+      "",
+      "以下是论坛的快速添加表格"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201709/09/220119f929zdnnhysbddkc.jpg?a=a"
+    ]
+  },
+  {
+    "cp": 15,
+    "title_guess": "图片左浮动 + 表格底色（由50楼 @Hazardosu dalao提供）",
+    "text_head": [
+      "图片左浮动 + 表格底色（由50楼 @Hazardosu dalao提供）",
+      "通常用于成就贴表格的成就图片+注释",
+      "这是个标题",
+      "这是句描述",
+      "这是另一句描述",
+      "[table=65%,#111923]",
+      "[tr][td][float=left][img=64,64]http://4.pic.paopaoche.net/up/2016-4/2016419103436.png[/img][/float][size=3][color=#C6D4DF]这是个标题[/color][/size]",
+      "[color=#8F98A0]这是句描述[/color]"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 1,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 14,
+      "TextElement": 12,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "http://4.pic.paopaoche.net/up/2016-4/2016419103436.png"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "图片左浮动 + 表格底色（由50楼 @Hazardosu dalao提供）",
+      "通常用于成就贴表格的成就图片+注释",
+      "http://4.pic.paopaoche.net/up/2016-4/2016419103436.png 这是个标题",
+      "这是句描述",
+      "这是另一句描述",
+      "",
+      "[table=65%,#111923]",
+      "[tr][td][float=left][img=64,64]http://4.pic.paopaoche.net/up/2016-4/2016419103436.png[/img][/float][size=3][color=#C6D4DF]这是个标题[/color][/size]",
+      "[color=#8F98A0]这是句描述[/color]",
+      "[color=#8F98A0]这是另一句描述[/color]"
+    ],
+    "payload_head": [
+      "**图片左浮动 + 表格底色（由50楼 @Hazardosu dalao提供）**",
+      "740731172 \\ 2017-09-09 22:04",
+      "图片左浮动 + 表格底色（由50楼 @Hazardosu dalao提供）",
+      "通常用于成就贴表格的成就图片+注释",
+      "http://4.pic.paopaoche.net/up/2016-4/2016419103436.png 这是个标题",
+      "这是句描述",
+      "这是另一句描述",
+      "",
+      "[table=65%,#111923]",
+      "[tr][td][float=left][img=64,64]http://4.pic.paopaoche.net/up/2016-4/2016419103436.png[/img][/float][size=3][color=#C6D4DF]这是个标题[/color][/size]",
+      "[color=#8F98A0]这是句描述[/color]",
+      "[color=#8F98A0]这是另一句描述[/color]"
+    ],
+    "link_urls": [
+      "http://4.pic.paopaoche.net/up/2016-4/2016419103436.png"
+    ]
+  },
+  {
+    "cp": 16,
+    "title_guess": "[ password ]密码[ /password ]",
+    "text_head": [
+      "[ password ]密码[ /password ]",
+      "复制代码",
+      "使用后会锁一个楼层的信息，一般用于解密帖",
+      "目录密码只锁1个分页",
+      "下面那个三级分页密码为1"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 6,
+      "TextElement": 5
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "[ password ]密码[ /password ]",
+      "复制代码",
+      "使用后会锁一个楼层的信息，一般用于解密帖",
+      "目录密码只锁1个分页",
+      "下面那个三级分页密码为1"
+    ],
+    "payload_head": [
+      "**[ password ]密码[ /password ]**",
+      "740731172 \\ 2017-09-09 22:04",
+      "[ password ]密码[ /password ]",
+      "复制代码",
+      "使用后会锁一个楼层的信息，一般用于解密帖",
+      "目录密码只锁1个分页",
+      "下面那个三级分页密码为1",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=16&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": []
+  },
+  {
+    "cp": 17,
+    "title_guess": "",
+    "text_head": [],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 0
+    },
+    "parser_kind_counts": {},
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [],
+    "payload_head": [
+      "**cp-17**",
+      "740731172 \\ 2017-09-09 22:04",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=17&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": []
+  },
+  {
+    "cp": 18,
+    "title_guess": "由于分页代码的特殊，所以只能截图显示效果",
+    "text_head": [
+      "由于分页代码的特殊，所以只能截图显示效果",
+      "第一页内容",
+      "[ page ]",
+      "第二页内容",
+      "[ page ]",
+      "第三页内容",
+      "复制代码",
+      "效果如下"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 10,
+      "TextElement": 8,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/213951rz94ti3c4vgrgizb.jpg?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "由于分页代码的特殊，所以只能截图显示效果",
+      "第一页内容",
+      "[ page ]",
+      "第二页内容",
+      "[ page ]",
+      "第三页内容",
+      "复制代码",
+      "效果如下",
+      "https://blob.keylol.com/forum/201709/09/213951rz94ti3c4vgrgizb.jpg?a=a"
+    ],
+    "payload_head": [
+      "**由于分页代码的特殊，所以只能截图显示效果**",
+      "740731172 \\ 2017-09-09 22:04",
+      "由于分页代码的特殊，所以只能截图显示效果",
+      "第一页内容",
+      "[ page ]",
+      "第二页内容",
+      "[ page ]",
+      "第三页内容",
+      "复制代码",
+      "效果如下",
+      "https://blob.keylol.com/forum/201709/09/213951rz94ti3c4vgrgizb.jpg?a=a",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=18&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201709/09/213951rz94ti3c4vgrgizb.jpg?a=a"
+    ]
+  },
+  {
+    "cp": 19,
+    "title_guess": "Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）",
+    "text_head": [
+      "Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）",
+      "效果图，也就是点击后会启动Steam客户端，进行安装运行等操作。",
+      "该怎么做到？首先你得知道Steam协议开头的链接，",
+      "几个例子",
+      "steam://install/258970 就是安装App ID为258970的游戏",
+      "steam://run/258970 就是启动App ID为258970的游戏",
+      "steam://nav/console 就是打开Steam控制台",
+      "可以直接写代码steamlink，把命令放到中间，头尾再用steamlink封闭一下。 比如："
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 2,
+      "link_count": 0
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 24,
+      "ImageElement": 2,
+      "TextElement": 15
+    },
+    "media_urls": [
+      "https://keylol.com/static/image/common/bb_steam_text_v2.png",
+      "https://blob.keylol.com/forum/201409/25/161205hkxxelyvdkykedzd.jpg"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "https://keylol.com/static/image/common/bb_steam_text_v2.png Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）",
+      "",
+      "效果图，也就是点击后会启动Steam客户端，进行安装运行等操作。",
+      "",
+      "https://blob.keylol.com/forum/201409/25/161205hkxxelyvdkykedzd.jpg",
+      "该怎么做到？首先你得知道Steam协议开头的链接，",
+      "几个例子",
+      "steam://install/258970 就是安装App ID为258970的游戏",
+      "steam://run/258970 就是启动App ID为258970的游戏",
+      "steam://nav/console 就是打开Steam控制台"
+    ],
+    "payload_head": [
+      "**Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）**",
+      "740731172 \\ 2017-09-09 22:04",
+      "https://keylol.com/static/image/common/bb_steam_text_v2.png Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）",
+      "",
+      "效果图，也就是点击后会启动Steam客户端，进行安装运行等操作。",
+      "",
+      "https://blob.keylol.com/forum/201409/25/161205hkxxelyvdkykedzd.jpg",
+      "该怎么做到？首先你得知道Steam协议开头的链接，",
+      "几个例子",
+      "steam://install/258970 就是安装App ID为258970的游戏",
+      "steam://run/258970 就是启动App ID为258970的游戏",
+      "steam://nav/console 就是打开Steam控制台"
+    ],
+    "link_urls": [
+      "https://keylol.com/static/image/common/bb_steam_text_v2.png",
+      "https://blob.keylol.com/forum/201409/25/161205hkxxelyvdkykedzd.jpg"
+    ]
+  },
+  {
+    "cp": 20,
+    "title_guess": "简易图片上传和放置教程",
+    "text_head": [
+      "简易图片上传和放置教程",
+      "图片上传和放置的视频教程",
+      "https://www.bilibili.com/video/BV1c64y1c7dZ"
+    ],
+    "features": {
+      "iframe_count": 1,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 1,
+      "image_count": 2,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 13,
+      "TextElement": 2,
+      "ImageElement": 2,
+      "EmbedElement": 1,
+      "LinkElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201708/06/144740ukc78dfg1do7azc7.jpg",
+      "https://blob.keylol.com/forum/201708/06/144800kxkb41c0l335x1x7.jpg",
+      "https://keylol.com/source/plugin/onexin_html5player/open/bilibili/html5player.html?bvid=BV1c64y1c7dZ&page="
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "简易图片上传和放置教程",
+      "",
+      "https://blob.keylol.com/forum/201708/06/144740ukc78dfg1do7azc7.jpg",
+      "",
+      "https://blob.keylol.com/forum/201708/06/144800kxkb41c0l335x1x7.jpg",
+      "",
+      "图片上传和放置的视频教程",
+      "",
+      "Bilibili",
+      ""
+    ],
+    "payload_head": [
+      "**简易图片上传和放置教程**",
+      "740731172 \\ 2017-09-09 22:04",
+      "简易图片上传和放置教程",
+      "",
+      "https://blob.keylol.com/forum/201708/06/144740ukc78dfg1do7azc7.jpg",
+      "",
+      "https://blob.keylol.com/forum/201708/06/144800kxkb41c0l335x1x7.jpg",
+      "",
+      "图片上传和放置的视频教程",
+      "",
+      "Bilibili",
+      ""
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201708/06/144740ukc78dfg1do7azc7.jpg",
+      "https://blob.keylol.com/forum/201708/06/144800kxkb41c0l335x1x7.jpg",
+      "https://keylol.com/source/plugin/onexin_html5player/open/bilibili/html5player.html?bvid=BV1c64y1c7dZ&page=",
+      "https://www.bilibili.com/video/BV1c64y1c7dZ"
+    ]
+  },
+  {
+    "cp": 21,
+    "title_guess": "帖子背景",
+    "text_head": [
+      "帖子背景",
+      "这个功能可以给你的帖子加一个美美的背景",
+      "比如论坛里的一位dalao每次的帖子都是有背景的！",
+      "帖子背景.jpg",
+      "(12.4 KB, 下载次数: 0)",
+      "下载附件",
+      "2017-9-9 21:40 上传",
+      "所有版块皆可悬赏！"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 4,
+      "link_count": 4
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 21,
+      "TextElement": 12,
+      "ImageElement": 4
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201709/09/214040bpcn1ln6pj3qn1pc.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430p8sxgji3x8xjv8s4.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430r4btbcfrsppltstu.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/215131anfgfvntnzafi7p8.jpg?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "帖子背景",
+      "这个功能可以给你的帖子加一个美美的背景",
+      "比如论坛里的一位dalao每次的帖子都是有背景的！",
+      "https://blob.keylol.com/forum/201709/09/214040bpcn1ln6pj3qn1pc.jpg?a=a",
+      "",
+      "所有版块皆可悬赏！",
+      "https://blob.keylol.com/forum/201709/09/214430p8sxgji3x8xjv8s4.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430r4btbcfrsppltstu.jpg?a=a",
+      "",
+      "回帖奖励"
+    ],
+    "payload_head": [
+      "**帖子背景**",
+      "740731172 \\ 2017-09-09 22:04",
+      "帖子背景",
+      "这个功能可以给你的帖子加一个美美的背景",
+      "比如论坛里的一位dalao每次的帖子都是有背景的！",
+      "https://blob.keylol.com/forum/201709/09/214040bpcn1ln6pj3qn1pc.jpg?a=a",
+      "",
+      "所有版块皆可悬赏！",
+      "https://blob.keylol.com/forum/201709/09/214430p8sxgji3x8xjv8s4.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430r4btbcfrsppltstu.jpg?a=a",
+      "",
+      "回帖奖励"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201709/09/214040bpcn1ln6pj3qn1pc.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430p8sxgji3x8xjv8s4.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/214430r4btbcfrsppltstu.jpg?a=a",
+      "https://blob.keylol.com/forum/201709/09/215131anfgfvntnzafi7p8.jpg?a=a"
+    ]
+  },
+  {
+    "cp": 22,
+    "title_guess": "拼音标记",
+    "text_head": [
+      "拼音标记",
+      "可以给文字顶部添加",
+      "注音",
+      "、",
+      "附文",
+      "或",
+      "其他注释",
+      "，代码如下："
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 3,
+      "rt_count": 3,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 2
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 26,
+      "TextElement": 38,
+      "ImageElement": 1,
+      "LinkElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/201912/06/024504pfpp88iscbu3guw3.png?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "拼音标记",
+      "",
+      "可以给文字顶部添加 注音 （ Zhù Yīn ） 、 附文 （ ㄈㄨˋㄨㄣˊ ） 或 其他注释 （ Ruby Character ），代码如下：",
+      "[rb=注音]正文[/rb]",
+      "复制代码",
+      "悬浮窗",
+      "",
+      "指定一段文本，光标滑过 这段文本 额外内容可以这样藏在悬浮窗里面 时显示浮窗以及额外内容。代码如下：",
+      "[hover=悬浮窗内容]正文文本[/hover]",
+      "复制代码"
+    ],
+    "payload_head": [
+      "**拼音标记**",
+      "740731172 \\ 2017-09-09 22:04",
+      "拼音标记",
+      "",
+      "可以给文字顶部添加 注音 （ Zhù Yīn ） 、 附文 （ ㄈㄨˋㄨㄣˊ ） 或 其他注释 （ Ruby Character ），代码如下：",
+      "[rb=注音]正文[/rb]",
+      "复制代码",
+      "悬浮窗",
+      "",
+      "指定一段文本，光标滑过 这段文本 额外内容可以这样藏在悬浮窗里面 时显示浮窗以及额外内容。代码如下：",
+      "[hover=悬浮窗内容]正文文本[/hover]",
+      "复制代码"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/201912/06/024504pfpp88iscbu3guw3.png?a=a",
+      "https://keylol.com/t543152-1-1"
+    ]
+  },
+  {
+    "cp": 23,
+    "title_guess": "示例：章节标题",
+    "text_head": [
+      "示例：章节标题",
+      "[k0]章节标题[/k0]",
+      "复制代码",
+      "示例：一号字标题",
+      "[k1]一号字标题[/k1]",
+      "复制代码",
+      "示例：二号字标题",
+      "[k2]二号字标题[/k2]"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 0,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 36,
+      "TextElement": 21,
+      "LinkElement": 1
+    },
+    "media_urls": [],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "示例：章节标题",
+      "",
+      "[k0]章节标题[/k0]",
+      "复制代码",
+      "",
+      "示例：一号字标题",
+      "",
+      "[k1]一号字标题[/k1]",
+      "复制代码",
+      ""
+    ],
+    "payload_head": [
+      "**示例：章节标题**",
+      "740731172 \\ 2017-09-09 22:04",
+      "示例：章节标题",
+      "",
+      "[k0]章节标题[/k0]",
+      "复制代码",
+      "",
+      "示例：一号字标题",
+      "",
+      "[k1]一号字标题[/k1]",
+      "复制代码",
+      ""
+    ],
+    "link_urls": [
+      "https://keylol.com/t595283-1-1"
+    ]
+  },
+  {
+    "cp": 24,
+    "title_guess": "倒计时直接从面板上选择使用，输入截止的时间和结束时显示的文字即可。注意是北京时间。",
+    "text_head": [
+      "倒计时直接从面板上选择使用，输入截止的时间和结束时显示的文字即可。注意是北京时间。",
+      "image.png",
+      "(73.36 KB, 下载次数: 0)",
+      "下载附件",
+      "2020-12-14 08:00 上传"
+    ],
+    "features": {
+      "iframe_count": 0,
+      "embed_count": 0,
+      "locked_count": 0,
+      "blockquote_count": 0,
+      "table_count": 0,
+      "ruby_count": 0,
+      "rt_count": 0,
+      "hover_like_count": 0,
+      "steam_info_count": 0,
+      "html5video_count": 0,
+      "image_count": 1,
+      "link_count": 1
+    },
+    "parser_kind_counts": {
+      "LineBreakElement": 5,
+      "TextElement": 1,
+      "ImageElement": 1
+    },
+    "media_urls": [
+      "https://blob.keylol.com/forum/202012/14/080001m22s3i0xa93s9f20.png?a=a"
+    ],
+    "warning_codes": [],
+    "error_codes": [],
+    "fallback_head": [
+      "倒计时直接从面板上选择使用，输入截止的时间和结束时显示的文字即可。注意是北京时间。",
+      "",
+      "https://blob.keylol.com/forum/202012/14/080001m22s3i0xa93s9f20.png?a=a"
+    ],
+    "payload_head": [
+      "**倒计时直接从面板上选择使用，输入截止的时间和结束时显示的文字即可。注意是北京时间。**",
+      "740731172 \\ 2017-09-09 22:04",
+      "倒计时直接从面板上选择使用，输入截止的时间和结束时显示的文字即可。注意是北京时间。",
+      "",
+      "https://blob.keylol.com/forum/202012/14/080001m22s3i0xa93s9f20.png?a=a",
+      "[查看原帖](https://keylol.com/forum.php?mod=viewthread&threadindex=yes&tid=307370&viewpid=4796006&cp=24&inajax=1&ajaxtarget=post_4796006)"
+    ],
+    "link_urls": [
+      "https://blob.keylol.com/forum/202012/14/080001m22s3i0xa93s9f20.png?a=a"
+    ]
+  }
+]

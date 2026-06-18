@@ -1,11 +1,10 @@
 from pyrogram import Client
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 from pyrogram.enums import ChatType
 import logging
 from typing import Optional, TYPE_CHECKING
 from domain.value_objects import TelegramPayload
-from infrastructure.services import LegacyTelegramPayloadAdapter
-from models.post import ForumPost
 from io import BytesIO
 from config import Config
 import re
@@ -26,7 +25,6 @@ class TelegramClient:
         self.logger = logging.getLogger(__name__)
         self.work_dir = work_dir
         self.post_service: Optional['PostService'] = None
-        self._legacy_payload_adapter = LegacyTelegramPayloadAdapter()
     
     def set_post_service(self, post_service: 'PostService'):
         """设置帖子服务引用"""
@@ -62,19 +60,6 @@ class TelegramClient:
         """停止Telegram客户端"""
         if self.app:
             await self.app.stop()
-    
-    async def send_post_to_channel(self, channel_id: int, post: ForumPost) -> bool:
-        """发送帖子到频道"""
-        try:
-            payload = self.build_legacy_payload_for_post(
-                post,
-                disable_web_page_preview=False,
-            )
-            return await self.send_payload_to_channel(channel_id, payload)
-            
-        except Exception as e:
-            self.logger.error(f"发送帖子到频道失败: {channel_id}, 错误: {e}")
-            return False
 
     async def send_payload_to_channel(self, channel_id: int, payload: TelegramPayload) -> bool:
         """发送结构化消息载荷到频道。"""
@@ -83,11 +68,7 @@ class TelegramClient:
                 self.logger.info(f"准备发送载荷到频道 {channel_id}: {payload.text}")
                 return True
 
-            await self.app.send_message(
-                chat_id=channel_id,
-                text=payload.text,
-                disable_web_page_preview=payload.disable_web_page_preview,
-            )
+            await self._send_payload(channel_id, payload)
             self.logger.info(f"成功发送载荷到频道: {channel_id}")
             return True
         except Exception as e:
@@ -188,19 +169,6 @@ class TelegramClient:
             matches = re.findall(pattern, text)
             threads.extend([int(match) for match in matches if match.isdigit()])
         return list(set(threads))
-    
-    async def send_post_to_user(self, user_id: int, post: ForumPost) -> bool:
-        """发送帖子给用户"""
-        try:
-            payload = self.build_legacy_payload_for_post(
-                post,
-                disable_web_page_preview=True,
-            )
-            return await self.send_payload_to_user(user_id, payload)
-            
-        except Exception as e:
-            self.logger.error(f"发送帖子给用户失败: {user_id}, 错误: {e}")
-            return False
 
     async def send_payload_to_user(self, user_id: int, payload: TelegramPayload) -> bool:
         """发送结构化消息载荷给用户。"""
@@ -209,25 +177,28 @@ class TelegramClient:
                 self.logger.info(f"准备发送载荷给用户 {user_id}: {payload.text}")
                 return True
 
-            await self.app.send_message(
-                chat_id=user_id,
-                text=payload.text,
-                disable_web_page_preview=payload.disable_web_page_preview,
-            )
+            await self._send_payload(user_id, payload)
             self.logger.info(f"成功发送载荷给用户 {user_id}")
             return True
         except Exception as e:
             self.logger.error(f"发送载荷给用户失败: {user_id}, 错误: {e}")
             return False
 
-    def build_legacy_payload_for_post(
-        self,
-        post: ForumPost,
-        *,
-        disable_web_page_preview: bool,
-    ) -> TelegramPayload:
-        """Build the legacy ForumPost projection without sending it yet."""
-        return self._legacy_payload_adapter.from_forum_post(
-            post,
-            disable_web_page_preview=disable_web_page_preview,
+    async def _send_payload(self, chat_id: int, payload: TelegramPayload):
+        await self.app.send_message(
+            chat_id=chat_id,
+            text=payload.text,
+            disable_web_page_preview=payload.disable_web_page_preview,
+            parse_mode=self._resolve_parse_mode(payload.parse_mode),
         )
+
+    def _resolve_parse_mode(self, parse_mode: str | None) -> ParseMode | None:
+        if parse_mode is None:
+            return None
+
+        lowered = parse_mode.lower()
+        if lowered == "html":
+            return ParseMode.HTML
+        if lowered in {"markdown", "markdownv2"}:
+            return ParseMode.MARKDOWN
+        return None

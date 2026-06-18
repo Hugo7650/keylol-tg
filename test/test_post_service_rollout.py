@@ -5,6 +5,7 @@ import json
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 import unittest
+from unittest.mock import patch
 
 from clients.forum_client import ForumTransportException
 from domain.value_objects import FetchedLatestPostsPage
@@ -17,6 +18,10 @@ from domain.value_objects import TelegramPayload
 from domain.value_objects import TextElement
 from models.post import ForumPost
 from services.post_service import PostService
+
+
+async def _immediate_sleep(_delay: float) -> None:
+    return None
 
 
 def _make_processed_thread(thread_id: int, payload_text: str) -> ProcessedThread:
@@ -80,17 +85,6 @@ class _FakeTelegramClient:
         self.notifications.append((admin_id, message))
         return True
 
-    def build_legacy_payload_for_post(
-        self,
-        post: ForumPost,
-        *,
-        disable_web_page_preview: bool,
-    ) -> TelegramPayload:
-        return TelegramPayload(
-            text=f"legacy:{post.id}:{post.content}",
-            disable_web_page_preview=disable_web_page_preview,
-        )
-
 
 class _FakePostProcessingService:
     def __init__(
@@ -117,56 +111,24 @@ class _FakeLatestPostsExtractor:
     def __init__(self, post_ids: tuple[int, ...] = (101,)):
         self.post_ids = post_ids
 
-    def extract(self, page, *, base_url, details_loader, limit=None):
+    def extract(self, page, *, base_url, limit=None):
         posts = [
             ForumPost(
                 id=post_id,
                 title=f"最新帖子 {post_id}",
                 url=f"{base_url}/t{post_id}-1-1",
                 author="列表作者",
-                details_loader=details_loader,
             )
             for post_id in self.post_ids
         ]
         return posts[:limit] if limit is not None else posts
 
 
-class _FakeLegacyPostLoader:
-    def __init__(self, exception_to_raise: Exception | None = None):
-        self.loaded_ids: list[int] = []
-        self.created_ids: list[int] = []
-        self.exception_to_raise = exception_to_raise
-
-    def load_post_details(self, thread_id: int):
-        if self.exception_to_raise is not None:
-            raise self.exception_to_raise
-        self.loaded_ids.append(thread_id)
-        return {
-            "title": f"legacy {thread_id}",
-            "author": "兼容作者",
-            "content": "兼容正文",
-            "publish_time": datetime(2026, 5, 30, 12, 42),
-            "images": [],
-            "tags": [],
-        }
-
-    def create_post(self, thread_id: int, *, title=None, author=None, url=None):
-        self.created_ids.append(thread_id)
-        return ForumPost(
-            id=thread_id,
-            title=title or f"帖子 {thread_id}",
-            url=url or f"https://example.com/t{thread_id}-1-1",
-            author=author or "未知作者",
-            details_loader=self.load_post_details,
-        )
-
-
 class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
-    async def test_compare_mode_sends_structured_payload_and_reports_diff(self):
+    async def test_channel_delivery_uses_structured_payload(self):
         with TemporaryDirectory() as work_dir:
             telegram_client = _FakeTelegramClient()
             post_processing_service = _FakePostProcessingService(payload_text="structured")
-            legacy_post_loader = _FakeLegacyPostLoader()
 
             service = PostService(
                 cast(Any, _FakeForumClient()),
@@ -176,73 +138,65 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
                 work_dir=work_dir,
                 post_processing_service=cast(Any, post_processing_service),
                 latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
-                legacy_post_loader=cast(Any, legacy_post_loader),
-                structured_pipeline_mode="compare",
             )
 
-            await service.check_and_send_new_posts()
-
-            self.assertEqual(post_processing_service.calls, [101])
-            self.assertEqual(legacy_post_loader.loaded_ids, [101])
-            self.assertEqual(len(telegram_client.channel_payloads), 1)
-            self.assertEqual(telegram_client.channel_payloads[0][1].text, "structured")
-            self.assertEqual(len(telegram_client.notifications), 1)
-            self.assertIn("text", telegram_client.notifications[0][1])
-
-    async def test_legacy_mode_uses_legacy_payload_for_single_thread(self):
-        with TemporaryDirectory() as work_dir:
-            telegram_client = _FakeTelegramClient()
-            post_processing_service = _FakePostProcessingService(payload_text="should-not-be-used")
-            legacy_post_loader = _FakeLegacyPostLoader()
-
-            service = PostService(
-                cast(Any, _FakeForumClient()),
-                cast(Any, telegram_client),
-                100,
-                200,
-                work_dir=work_dir,
-                post_processing_service=cast(Any, post_processing_service),
-                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
-                legacy_post_loader=cast(Any, legacy_post_loader),
-                structured_pipeline_mode="legacy",
-            )
-
-            success = await service.process_single_thread(303, 404)
-
-            self.assertTrue(success)
-            self.assertEqual(post_processing_service.calls, [])
-            self.assertEqual(legacy_post_loader.created_ids, [303])
-            self.assertEqual(legacy_post_loader.loaded_ids, [303])
-            self.assertEqual(len(telegram_client.user_payloads), 1)
-            self.assertEqual(telegram_client.user_payloads[0][0], 404)
-            self.assertIn("legacy:303:兼容正文", telegram_client.user_payloads[0][1].text)
-
-    async def test_compare_mode_keeps_structured_send_when_legacy_compare_hits_transport_error(self):
-        with TemporaryDirectory() as work_dir:
-            telegram_client = _FakeTelegramClient()
-            post_processing_service = _FakePostProcessingService(payload_text="structured")
-            legacy_post_loader = _FakeLegacyPostLoader(
-                exception_to_raise=ForumTransportException("temporary eof")
-            )
-
-            service = PostService(
-                cast(Any, _FakeForumClient()),
-                cast(Any, telegram_client),
-                100,
-                200,
-                work_dir=work_dir,
-                post_processing_service=cast(Any, post_processing_service),
-                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
-                legacy_post_loader=cast(Any, legacy_post_loader),
-                structured_pipeline_mode="compare",
-            )
-
-            await service.check_and_send_new_posts()
+            with patch("services.post_service.asyncio.sleep", new=_immediate_sleep):
+                await service.check_and_send_new_posts()
 
             self.assertEqual(post_processing_service.calls, [101])
             self.assertEqual(len(telegram_client.channel_payloads), 1)
             self.assertEqual(telegram_client.channel_payloads[0][1].text, "structured")
             self.assertEqual(telegram_client.notifications, [])
+
+    async def test_single_thread_uses_structured_payload(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient()
+            post_processing_service = _FakePostProcessingService(payload_text="structured-user")
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
+            )
+
+            success = await service.process_single_thread(303, 404)
+
+            self.assertTrue(success)
+            self.assertEqual(post_processing_service.calls, [303])
+            self.assertEqual(len(telegram_client.user_payloads), 1)
+            self.assertEqual(telegram_client.user_payloads[0][0], 404)
+            self.assertEqual(telegram_client.user_payloads[0][1].text, "structured-user")
+
+    async def test_single_thread_processing_error_notifies_user_without_fallback(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient()
+            post_processing_service = _FakePostProcessingService(
+                exception_by_id={303: RuntimeError("boom")}
+            )
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
+            )
+
+            success = await service.process_single_thread(303, 404)
+
+            self.assertFalse(success)
+            self.assertEqual(post_processing_service.calls, [303])
+            self.assertEqual(telegram_client.user_payloads, [])
+            self.assertEqual(
+                telegram_client.notifications,
+                [(404, "无法获取帖子内容，可能是链接无效或需要权限")],
+            )
 
     async def test_network_failure_after_first_success_still_persists_processed_ids(self):
         with TemporaryDirectory() as work_dir:
@@ -260,11 +214,10 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
                 work_dir=work_dir,
                 post_processing_service=cast(Any, post_processing_service),
                 latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101, 102))),
-                legacy_post_loader=cast(Any, _FakeLegacyPostLoader()),
-                structured_pipeline_mode="structured",
             )
 
-            await service.check_and_send_new_posts()
+            with patch("services.post_service.asyncio.sleep", new=_immediate_sleep):
+                await service.check_and_send_new_posts()
 
             self.assertEqual([payload.text for _, payload in telegram_client.channel_payloads], ["structured"])
             self.assertIn(101, service.processed_posts)
@@ -290,8 +243,6 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
                 work_dir=work_dir,
                 post_processing_service=cast(Any, _FakePostProcessingService()),
                 latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
-                legacy_post_loader=cast(Any, _FakeLegacyPostLoader()),
-                structured_pipeline_mode="structured",
             )
 
             await service.check_and_send_new_posts()

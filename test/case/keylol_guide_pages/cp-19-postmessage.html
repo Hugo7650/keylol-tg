@@ -1,0 +1,18 @@
+<td class="t_f" id="postmessage_4796006">
+<br/>
+<img alt="" border="0" class="zoom" file="https://keylol.com/static/image/common/bb_steam_text_v2.png" height="20" id="aimg_T4Miy" onclick="zoom(this, this.src, 0, 0, 1)" referrerpolicy="no-referrer" style="width: 20px; height: 20px; " width="20"/>Steam协议开头的链接（此部分能调动的东西较多，请勿在论坛上滥用）<br/>
+<br/>
+效果图，也就是点击后会启动Steam客户端，进行安装运行等操作。<br/>
+<br/>
+<img alt="" border="0" class="zoom" file="https://blob.keylol.com/forum/201409/25/161205hkxxelyvdkykedzd.jpg" id="aimg_XU1pH" onclick="zoom(this, this.src, 0, 0, 1)" referrerpolicy="no-referrer" style="width: 800px; " width="800"/><br/>
+该怎么做到？首先你得知道Steam协议开头的链接，<br/>
+几个例子 <br/>
+steam://install/258970 就是安装App ID为258970的游戏<br/>
+steam://run/258970  就是启动App ID为258970的游戏<br/>
+steam://nav/console 就是打开Steam控制台<br/>
+<br/>
+可以直接写代码steamlink，把命令放到中间，头尾再用steamlink封闭一下。 比如：<br/> <div class="blockcode"><div id="code_V6V"><ol><li>[steamlink]steam://install/258970[/steamlink] <br/></li><li> <br/></li><li>[steamlink]steam://nav/console[/steamlink]<br/></li></ol></div><em onclick="copycode($('code_V6V'));">复制代码</em></div><br>
+<br>
+如果要做到效果图里那样中间是文字，则需要代码steam，=号后面跟命令，中间则是文字，头尾再用steam封闭一下。比如：<br> <div class="blockcode"><div id="code_cSz"><ol><li>[steam=steam://install/258970]安装App ID为258970的游戏[/steam]  <br/></li><li><br/></li><li>[steam=steam://nav/console]打开Steam控制台[/steam]<br/></li></ol></div><em onclick="copycode($('code_cSz'));">复制代码</em></div><br>
+<br>
+</br></br></br></br></br></td>

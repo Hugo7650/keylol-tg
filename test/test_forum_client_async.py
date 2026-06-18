@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs
@@ -9,8 +10,9 @@ import httpx
 
 from clients.forum_client import ForumClient
 from clients.forum_client import ForumTransportException
+from domain.value_objects import FetchedThreadPage
+from domain.value_objects import FetchedLatestPostsPage
 from infrastructure.services.latest_posts_page_extractor import KeylolLatestPostsPageExtractor
-from infrastructure.services.legacy_forum_post_loader import LegacyForumPostLoader
 from infrastructure.services import KeylolForumContentParser
 from infrastructure.services import KeylolThreadPageExtractor
 
@@ -65,6 +67,60 @@ class ForumClientAsyncTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("帖子标题", latest_posts_page.html)
             self.assertEqual(thread_page.thread_id, 321)
             self.assertIn("线程正文", thread_page.html)
+
+    async def test_async_fetch_thread_page_merges_root_post_pagination(self):
+        base_page_html = (
+            '<html><head><meta charset="utf-8" /></head><body><section id="nav-additional"></section>'
+            '<div id="postlist"><div id="post_321"><table><tr>'
+            '<td class="pls"><a class="xw1">作者甲</a></td>'
+            '<td id="postmessage_321">'
+            '<div id="threadindex"><div class="tindex"><ul>'
+            '<li><a page="1" sub="">第一页</a></li>'
+            '<li><a page="2" sub="">第二页</a></li>'
+            '<li><a page="3" sub="">第三页</a></li>'
+            '</ul></div></div>'
+            '<p>第一页内容</p>'
+            '</td></tr></table><em id="authorposton321"><span title="2026-05-30 12:34:56"></span></em>'
+            '</div></div></body></html>'
+        )
+        page_two_ajax_html = (
+            '<?xml version="1.0" encoding="utf-8"?><root><![CDATA['
+            '<table id="pid321"><tr><td class="pls"><a class="xw1">作者甲</a></td>'
+            '<td id="postmessage_321"><p>第二页内容</p></td></tr></table>'
+            ']]></root>'
+        )
+        page_three_ajax_html = (
+            '<?xml version="1.0" encoding="utf-8"?><root><![CDATA['
+            '<table id="pid321"><tr><td class="pls"><a class="xw1">作者甲</a></td>'
+            '<td><div id="postpw_321"><p>第三页密码效果</p></div></td></tr></table>'
+            ']]></root>'
+        )
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            url = str(request.url)
+            if url == "https://example.com/t321-1-1":
+                return httpx.Response(200, text=base_page_html, request=request)
+            if "viewpid=321" in url and "cp=2" in url:
+                return httpx.Response(200, text=page_two_ajax_html, request=request)
+            if "viewpid=321" in url and "cp=3" in url:
+                return httpx.Response(200, text=page_three_ajax_html, request=request)
+            return httpx.Response(404, text="not found", request=request)
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport, follow_redirects=True) as client:
+            forum_client = ForumClient(
+                "https://example.com",
+                "user",
+                "pass",
+                async_http_client=client,
+            )
+            forum_client.is_logged_in = True
+
+            thread_page = await forum_client.fetch_thread_page(321)
+
+        self.assertIn("第一页内容", thread_page.html)
+        self.assertIn("第二页内容", thread_page.html)
+        self.assertIn("第三页密码效果", thread_page.html)
 
     async def test_async_login_handles_duplicate_cookie_names(self):
         login_page_html = (
@@ -226,18 +282,33 @@ class ForumClientSyncCompatibilityTests(unittest.TestCase):
         self.assertEqual(thread_page.thread_id, 654)
         self.assertIn("同步线程正文", thread_page.html)
 
-    def test_split_extractors_build_posts_and_legacy_details(self):
-        list_page_html = (
-            '<html><head><meta charset="utf-8" /></head><body><section id="nav-additional"></section><div id="forumnew"></div>'
-            '<table><tbody><tr><th class="common"><a href="t654-1-1">同步帖子</a></th>'
-            '<td class="by"><cite><a>同步作者</a></cite></td></tr></tbody></table></body></html>'
+    def test_sync_fetch_thread_page_merges_root_post_pagination(self):
+        base_page_html = (
+            '<html><head><meta charset="utf-8" /></head><body><section id="nav-additional"></section>'
+            '<div id="postlist"><div id="post_654"><table><tr>'
+            '<td class="pls"><a class="xw1">同步作者</a></td>'
+            '<td id="postmessage_654">'
+            '<div id="threadindex"><div class="tindex"><ul>'
+            '<li><a page="1" sub="">第一页</a></li>'
+            '<li><a page="2" sub="">第二页</a></li>'
+            '</ul></div></div>'
+            '<p>同步第一页</p>'
+            '</td></tr></table><em id="authorposton654"><span title="2026-05-30 12:34:56"></span></em>'
+            '</div></div></body></html>'
         )
-        fixture_path = Path(__file__).parent / "case" / "t1009483-1-1.htm"
-        html = fixture_path.read_text(encoding="utf-8")
+        page_two_ajax_html = (
+            '<?xml version="1.0" encoding="utf-8"?><root><![CDATA['
+            '<table id="pid654"><tr><td class="pls"><a class="xw1">同步作者</a></td>'
+            '<td id="postmessage_654"><p>同步第二页</p></td></tr></table>'
+            ']]></root>'
+        )
 
         def handler(request: httpx.Request) -> httpx.Response:
-            if str(request.url) == "https://example.com/t1009483-1-1":
-                return httpx.Response(200, text=html, request=request)
+            url = str(request.url)
+            if url == "https://example.com/t654-1-1":
+                return httpx.Response(200, text=base_page_html, request=request)
+            if "viewpid=654" in url and "cp=2" in url:
+                return httpx.Response(200, text=page_two_ajax_html, request=request)
             return httpx.Response(404, text="not found", request=request)
 
         forum_client = ForumClient(
@@ -248,58 +319,65 @@ class ForumClientSyncCompatibilityTests(unittest.TestCase):
         )
         forum_client.is_logged_in = True
 
-        latest_posts_extractor = KeylolLatestPostsPageExtractor()
-        legacy_post_loader = LegacyForumPostLoader(
-            forum_client,
-            KeylolThreadPageExtractor(),
-            KeylolForumContentParser(),
-            base_url=forum_client.base_url,
+        thread_page = forum_client.fetch_thread_page_sync(654)
+
+        self.assertIn("同步第一页", thread_page.html)
+        self.assertIn("同步第二页", thread_page.html)
+
+    def test_thread_page_extractor_supports_standalone_password_container(self):
+        page = FetchedThreadPage(
+            thread_id=321,
+            url="https://example.com/forum.php?mod=viewthread&threadindex=yes&tid=321&viewpid=321&cp=3&inajax=1&ajaxtarget=post_321",
+            html=(
+                '<table id="pid321"><tr>'
+                '<td class="pls"><a class="xw1">作者甲</a></td>'
+                '<td><div id="postpw_321"><p>请输入密码查看第三页</p></div></td>'
+                '</tr></table>'
+            ),
+            fetched_at=datetime.now(),
         )
 
-        latest_posts_page = forum_client._build_latest_posts_page(  # type: ignore[attr-defined]
-            httpx.Response(200, text=list_page_html, request=httpx.Request("GET", "https://example.com/forum.php?mod=guide&view=newthread"))
+        raw = KeylolThreadPageExtractor().extract(page)
+
+        self.assertEqual(raw.metadata.root_post_id, 321)
+        self.assertIn("postpw_321", raw.root_post_html)
+
+    def test_split_extractors_build_posts_and_structured_content(self):
+        list_page_html = (
+            '<html><head><meta charset="utf-8" /></head><body><section id="nav-additional"></section><div id="forumnew"></div>'
+            '<table><tbody><tr><th class="common"><a href="t654-1-1">同步帖子</a></th>'
+            '<td class="by"><cite><a>同步作者</a></cite></td></tr></tbody></table></body></html>'
         )
+        fixture_path = Path(__file__).parent / "case" / "t1009483-1-1.htm"
+        html = fixture_path.read_text(encoding="utf-8")
+
+        latest_posts_page = FetchedLatestPostsPage(
+            url="https://example.com/forum.php?mod=guide&view=newthread",
+            html=list_page_html,
+            fetched_at=datetime.now(),
+        )
+        latest_posts_extractor = KeylolLatestPostsPageExtractor()
         posts = latest_posts_extractor.extract(
             latest_posts_page,
-            base_url=forum_client.base_url,
-            details_loader=legacy_post_loader.load_post_details,
+            base_url="https://example.com",
         )
+        thread_page = FetchedThreadPage(
+            thread_id=1009483,
+            url="https://example.com/t1009483-1-1",
+            html=html,
+            fetched_at=datetime.now(),
+        )
+        raw = KeylolThreadPageExtractor().extract(thread_page)
+        details = KeylolForumContentParser().parse(raw)
 
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0].id, 654)
         self.assertEqual(posts[0].author, "同步作者")
-
-        details = legacy_post_loader.load_post_details(1009483)
-
-        self.assertIsNotNone(details)
-        assert details is not None
-        self.assertNotEqual(details["title"], "未知标题")
-        self.assertTrue(details["content"])
-        self.assertNotEqual(details["author"], "未知作者")
-
-    def test_legacy_post_loader_propagates_transport_errors(self):
-        def handler(request: httpx.Request) -> httpx.Response:
-            raise httpx.ConnectError("temporary eof", request=request)
-
-        forum_client = ForumClient(
-            "https://example.com",
-            "user",
-            "pass",
-            sync_http_transport=httpx.MockTransport(handler),
-            request_retries=0,
-            retry_backoff=0,
-        )
-        forum_client.is_logged_in = True
-
-        legacy_post_loader = LegacyForumPostLoader(
-            forum_client,
-            KeylolThreadPageExtractor(),
-            KeylolForumContentParser(),
-            base_url=forum_client.base_url,
-        )
-
-        with self.assertRaises(ForumTransportException):
-            legacy_post_loader.load_post_details(1009483)
+        self.assertEqual(posts[0].url, "https://example.com/t654-1-1")
+        self.assertEqual(raw.metadata.thread_id, 1009483)
+        self.assertNotEqual(raw.metadata.title, "未知标题")
+        self.assertTrue(details.fallback_text)
+        self.assertNotEqual(raw.metadata.author, "未知作者")
 
 
 if __name__ == "__main__":

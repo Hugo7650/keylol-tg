@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature restructures Keylol thread processing into an incremental pipeline that separates fetching, extraction, parsing, and Telegram rendering. The first iteration must improve maintainability without breaking the bot's current behavior or introducing abstractions that the codebase does not yet need.
+This feature restructures Keylol thread processing into an incremental pipeline that separates fetching, extraction, parsing, and Telegram rendering. The structured pipeline is now the production path, so the requirements below describe the steady-state architecture rather than a temporary migration stage.
 
 ## Scope Clarification
 
@@ -57,20 +57,20 @@ This feature restructures Keylol thread processing into an incremental pipeline 
 1. WHEN content is formatted for Telegram THEN the formatter SHALL return a typed delivery payload instead of a bare string.
 2. WHEN a post contains media references THEN the delivery payload SHALL expose text and media separately.
 3. WHEN rendering rules change THEN Telegram formatting logic SHALL remain outside ForumPost and ForumClient.
-4. WHEN the current bot flow still expects a string message THEN the system SHALL provide a migration adapter.
+4. WHEN the current bot forwards a post THEN it SHALL consume TelegramPayload directly without a legacy string adapter.
 5. WHEN additional output channels are introduced later THEN they SHALL consume the same structured content contract.
 
 ### Requirement 5
 
-**User Story:** As a maintainer, I want migration-safe backward compatibility, so that the refactor can ship incrementally without forcing a flag day rewrite.
+**User Story:** As a maintainer, I want the legacy compatibility layer retired after validation, so that the codebase keeps one authoritative structured-processing path.
 
 #### Acceptance Criteria
 
-1. WHEN the refactor is introduced THEN existing post forwarding behavior SHALL remain available during migration.
-2. WHEN legacy code accesses ForumPost.content THEN the system SHALL continue to provide a string view derived from structured content or fallback text.
-3. WHEN lazy loading is retained THEN it SHALL live in a loader or adapter layer, not inside immutable value objects.
-4. WHEN the new structured pipeline is enabled THEN rollout SHALL allow side-by-side comparison with the legacy output path.
-5. WHEN migration is complete THEN legacy formatting code SHALL be removable without changing the structured parser contract.
+1. WHEN post forwarding runs in production THEN it SHALL use the structured pipeline without rollout flags or side-by-side legacy comparison.
+2. WHEN latest-post list items are represented in application code THEN ForumPost SHALL remain a minimal summary model containing only id, title, url, and author.
+3. WHEN detailed thread content is needed THEN it SHALL come from fetched, extracted, parsed, and formatted structured contracts rather than ForumPost lazy-loading hooks.
+4. WHEN legacy helpers are removed THEN the structured parser and formatter contracts SHALL remain unchanged.
+5. WHEN regressions are checked THEN the test suite SHALL continue to verify the structured-only delivery path.
 
 ### Requirement 6
 

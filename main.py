@@ -99,7 +99,6 @@ class KeylolTelegramApp:
             self.config.telegram_admin_id,
             self.config.max_posts_per_check,
             work_dir=self.work_dir,
-            structured_pipeline_mode=self.config.structured_pipeline_mode,
         )
         
         # 设置相互引用
