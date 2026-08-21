@@ -22,6 +22,7 @@ from domain.value_objects import QuoteNode
 from domain.value_objects import TelegramPayload
 from domain.value_objects import TextNode
 from domain.value_objects import UnknownElement
+from models.post import ForumPost
 
 
 class TelegramFormatter:
@@ -74,6 +75,32 @@ class TelegramFormatter:
         return TelegramPayload(
             text=message,
             media_urls=result.content.media_urls(),
+            disable_web_page_preview=False,
+            parse_mode="html",
+        )
+
+    def format_unavailable_post(
+        self,
+        post: ForumPost,
+        forum_message: str,
+    ) -> TelegramPayload:
+        header_lines = [
+            f"<b>{escape(post.title)}</b>",
+            escape(post.author),
+        ]
+        body = f"论坛提示：{escape(forum_message)}"
+        footer_line = f'<a href="{escape(post.url, quote=True)}">查看原帖</a>'
+        message = self._compose_message(header_lines, body, footer_line)
+
+        if len(message) > self._MAX_MESSAGE_LENGTH:
+            body = self._truncate_html_body_to_fit(body, header_lines, footer_line)
+            message = self._compose_message(header_lines, body, footer_line)
+
+        if len(message) > self._MAX_MESSAGE_LENGTH:
+            message = message[: self._MAX_MESSAGE_LENGTH]
+
+        return TelegramPayload(
+            text=message,
             disable_web_page_preview=False,
             parse_mode="html",
         )

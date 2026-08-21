@@ -9,6 +9,8 @@ import unittest
 import httpx
 
 from clients.forum_client import ForumClient
+from clients.forum_client import ForumLoginException
+from clients.forum_client import ForumThreadUnavailableException
 from clients.forum_client import ForumTransportException
 from domain.value_objects import FetchedThreadPage
 from domain.value_objects import FetchedLatestPostsPage
@@ -18,6 +20,103 @@ from infrastructure.services import KeylolThreadPageExtractor
 
 
 class ForumClientAsyncTests(unittest.IsolatedAsyncioTestCase):
+    async def test_async_fetch_thread_page_raises_for_forum_message_pages(self):
+        case_dir = Path(__file__).parent / "case"
+        cases = {
+            1044587: (
+                "thread_unavailable_deleted.html",
+                "抱歉，指定的主题不存在或已被删除或正在被审核",
+            ),
+            1045552: (
+                "thread_unavailable_forbidden.html",
+                "抱歉，您没有权限访问该版块",
+            ),
+        }
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            thread_id = int(str(request.url).split("/t")[-1].split("-")[0])
+            fixture_name, _ = cases[thread_id]
+            return httpx.Response(
+                200,
+                text=(case_dir / fixture_name).read_text(encoding="utf-8"),
+                request=request,
+            )
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport, follow_redirects=True) as client:
+            forum_client = ForumClient(
+                "https://example.com",
+                "user",
+                "pass",
+                async_http_client=client,
+            )
+            forum_client.is_logged_in = True
+
+            for thread_id, (_, expected_message) in cases.items():
+                with self.subTest(thread_id=thread_id):
+                    with self.assertRaises(ForumThreadUnavailableException) as context:
+                        await forum_client.fetch_thread_page(thread_id)
+
+                    self.assertEqual(context.exception.thread_id, thread_id)
+                    self.assertEqual(context.exception.forum_message, expected_message)
+
+    async def test_async_fetch_thread_page_uses_fallback_for_empty_forum_message(self):
+        async def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                text='<html><body><div id="messagetext"><script>ignored()</script></div></body></html>',
+                request=request,
+            )
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport, follow_redirects=True) as client:
+            forum_client = ForumClient(
+                "https://example.com",
+                "user",
+                "pass",
+                async_http_client=client,
+            )
+            forum_client.is_logged_in = True
+
+            with self.assertRaises(ForumThreadUnavailableException) as context:
+                await forum_client.fetch_thread_page(123)
+
+        self.assertEqual(
+            context.exception.forum_message,
+            "论坛返回提示信息，无法获取帖子内容",
+        )
+
+    async def test_login_redirect_takes_priority_over_forum_message(self):
+        login_message_html = (
+            '<html><body><div id="messagetext"><p>抱歉，您需要先登录</p></div></body></html>'
+        )
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            if "/t123-1-1" in str(request.url):
+                return httpx.Response(
+                    302,
+                    headers={"location": "/member.php?mod=logging&action=login"},
+                    request=request,
+                )
+            return httpx.Response(200, text=login_message_html, request=request)
+
+        transport = httpx.MockTransport(handler)
+        with TemporaryDirectory() as work_dir:
+            async with httpx.AsyncClient(transport=transport, follow_redirects=True) as client:
+                forum_client = ForumClient(
+                    "https://example.com",
+                    "user",
+                    "pass",
+                    work_dir=work_dir,
+                    async_http_client=client,
+                )
+                forum_client.is_logged_in = True
+
+                with self.assertRaises(ForumLoginException):
+                    await forum_client.fetch_thread_page(123)
+
+                self.assertFalse(forum_client.is_logged_in)
+
     async def test_async_login_status_and_page_fetches(self):
         login_page_html = (
             '<html><head><meta charset="utf-8" /></head><body><form name="login" id="loginform_abc">'
@@ -235,6 +334,33 @@ class ForumClientAsyncTests(unittest.IsolatedAsyncioTestCase):
 
 
 class ForumClientSyncCompatibilityTests(unittest.TestCase):
+    def test_sync_fetch_thread_page_raises_for_forum_message_page(self):
+        fixture_path = Path(__file__).parent / "case" / "thread_unavailable_forbidden.html"
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                text=fixture_path.read_text(encoding="utf-8"),
+                request=request,
+            )
+
+        forum_client = ForumClient(
+            "https://example.com",
+            "user",
+            "pass",
+            sync_http_transport=httpx.MockTransport(handler),
+        )
+        forum_client.is_logged_in = True
+
+        with self.assertRaises(ForumThreadUnavailableException) as context:
+            forum_client.fetch_thread_page_sync(1045552)
+
+        self.assertEqual(context.exception.thread_id, 1045552)
+        self.assertEqual(
+            context.exception.forum_message,
+            "抱歉，您没有权限访问该版块",
+        )
+
     def test_sync_login_status_and_page_fetches_use_httpx(self):
         login_page_html = (
             '<html><head><meta charset="utf-8" /></head><body><form name="login" id="loginform_sync">'

@@ -7,6 +7,7 @@ from typing import Any, cast
 import unittest
 from unittest.mock import patch
 
+from clients.forum_client import ForumThreadUnavailableException
 from clients.forum_client import ForumTransportException
 from domain.value_objects import FetchedLatestPostsPage
 from domain.value_objects import ParseResult
@@ -68,14 +69,15 @@ class _FakeForumClient:
 
 
 class _FakeTelegramClient:
-    def __init__(self):
+    def __init__(self, *, channel_send_success: bool = True):
+        self.channel_send_success = channel_send_success
         self.channel_payloads: list[tuple[int, TelegramPayload]] = []
         self.user_payloads: list[tuple[int, TelegramPayload]] = []
         self.notifications: list[tuple[int, str]] = []
 
     async def send_payload_to_channel(self, channel_id: int, payload: TelegramPayload) -> bool:
         self.channel_payloads.append((channel_id, payload))
-        return True
+        return self.channel_send_success
 
     async def send_payload_to_user(self, user_id: int, payload: TelegramPayload) -> bool:
         self.user_payloads.append((user_id, payload))
@@ -125,6 +127,124 @@ class _FakeLatestPostsExtractor:
 
 
 class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unavailable_post_sends_forum_message_and_continues_polling(self):
+        with TemporaryDirectory() as work_dir:
+            forum_message = "抱歉，指定的主题不存在或已被删除或正在被审核"
+            telegram_client = _FakeTelegramClient()
+            post_processing_service = _FakePostProcessingService(
+                payload_text="structured",
+                exception_by_id={
+                    101: ForumThreadUnavailableException(101, forum_message),
+                },
+            )
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101, 102))),
+            )
+
+            with patch("services.post_service.asyncio.sleep", new=_immediate_sleep):
+                await service.check_and_send_new_posts()
+
+            self.assertEqual(post_processing_service.calls, [101, 102])
+            self.assertEqual(len(telegram_client.channel_payloads), 2)
+            self.assertIn("<b>最新帖子 101</b>", telegram_client.channel_payloads[0][1].text)
+            self.assertIn("列表作者", telegram_client.channel_payloads[0][1].text)
+            self.assertIn(f"论坛提示：{forum_message}", telegram_client.channel_payloads[0][1].text)
+            self.assertEqual(telegram_client.channel_payloads[1][1].text, "structured")
+            self.assertEqual(telegram_client.notifications, [])
+            self.assertEqual(service.processed_posts, {101, 102})
+
+            with open(f"{work_dir}/processed_posts.json", "r", encoding="utf-8") as file_handle:
+                persisted = json.load(file_handle)
+
+            self.assertEqual(persisted["posts"], [102, 101])
+
+    async def test_unavailable_post_is_not_processed_when_channel_send_fails(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient(channel_send_success=False)
+            post_processing_service = _FakePostProcessingService(
+                exception_by_id={
+                    101: ForumThreadUnavailableException(101, "论坛提示"),
+                },
+            )
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101,))),
+            )
+
+            await service.check_and_send_new_posts()
+
+            self.assertEqual(len(telegram_client.channel_payloads), 1)
+            self.assertNotIn(101, service.processed_posts)
+            self.assertEqual(telegram_client.notifications, [])
+
+    async def test_single_unavailable_thread_returns_forum_message_to_requester(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient()
+            post_processing_service = _FakePostProcessingService(
+                exception_by_id={
+                    303: ForumThreadUnavailableException(
+                        303,
+                        "抱歉，您没有权限访问该版块",
+                    ),
+                },
+            )
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor()),
+            )
+
+            success = await service.process_single_thread(303, 404)
+
+            self.assertFalse(success)
+            self.assertEqual(telegram_client.channel_payloads, [])
+            self.assertEqual(
+                telegram_client.notifications,
+                [(404, "论坛提示：抱歉，您没有权限访问该版块")],
+            )
+
+    async def test_unclassified_polling_error_still_notifies_admin(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient()
+            post_processing_service = _FakePostProcessingService(fail_ids=(101,))
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101,))),
+            )
+
+            await service.check_and_send_new_posts()
+
+            self.assertEqual(telegram_client.channel_payloads, [])
+            self.assertNotIn(101, service.processed_posts)
+            self.assertEqual(
+                telegram_client.notifications,
+                [(200, "检查新帖子时出错: boom")],
+            )
+
     async def test_channel_delivery_uses_structured_payload(self):
         with TemporaryDirectory() as work_dir:
             telegram_client = _FakeTelegramClient()

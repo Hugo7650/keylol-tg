@@ -21,6 +21,16 @@ class ForumTransportException(Exception):
     """论坛网络或传输异常"""
     pass
 
+
+class ForumThreadUnavailableException(Exception):
+    """论坛返回提示页，无法获取帖子正文。"""
+
+    def __init__(self, thread_id: int, forum_message: str):
+        self.thread_id = thread_id
+        self.forum_message = forum_message
+        super().__init__(forum_message)
+
+
 class CaptchaRequiredException(Exception):
     """需要验证码异常"""
     def __init__(self, captcha_image: bytes, message: str = "需要输入验证码"):
@@ -369,11 +379,46 @@ class ForumClient:
             self.clear_session()
             raise ForumLoginException("登录已失效")
 
+        forum_message = self._extract_thread_forum_message(tree)
+        if forum_message is not None:
+            raise ForumThreadUnavailableException(thread_id, forum_message)
+
         return FetchedThreadPage(
             thread_id=thread_id,
             url=str(response.url),
             html=page_html,
             fetched_at=datetime.now(),
+        )
+
+    def _extract_thread_forum_message(
+        self,
+        tree: Optional[etree._Element],
+    ) -> str | None:
+        if tree is None:
+            return None
+
+        message_elements = tree.xpath('//*[@id="messagetext"]')
+        if not message_elements:
+            return None
+
+        message_element = message_elements[0]
+        for paragraph in message_element.xpath('.//p'):
+            message = self._normalize_forum_message(paragraph.xpath('.//text()'))
+            if message:
+                return message
+
+        message = self._normalize_forum_message(
+            message_element.xpath(
+                './/text()[not(ancestor::script) and not(ancestor::style)]'
+            )
+        )
+        return message or "论坛返回提示信息，无法获取帖子内容"
+
+    def _normalize_forum_message(self, fragments: list[str]) -> str:
+        return " ".join(
+            normalized
+            for fragment in fragments
+            if (normalized := " ".join(fragment.split()))
         )
 
     async def _expand_thread_page_with_pagination_async(

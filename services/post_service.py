@@ -7,6 +7,7 @@ import os
 
 from clients.forum_client import ForumClient, CaptchaRequiredException, ForumLoginException
 from clients.forum_client import ForumTransportException
+from clients.forum_client import ForumThreadUnavailableException
 from infrastructure.services import KeylolForumContentParser
 from infrastructure.services import KeylolThreadPageExtractor
 from infrastructure.services import TelegramFormatter
@@ -39,12 +40,12 @@ class PostService:
         self.logger = logging.getLogger(__name__)
         thread_page_extractor = KeylolThreadPageExtractor()
         content_parser = KeylolForumContentParser()
-        formatter = TelegramFormatter()
+        self.telegram_formatter = TelegramFormatter()
         self.post_processing_service = post_processing_service or PostProcessingService(
             forum_client,
             thread_page_extractor,
             content_parser,
-            formatter,
+            self.telegram_formatter,
         )
         self.latest_posts_extractor = latest_posts_extractor or KeylolLatestPostsPageExtractor()
         
@@ -185,6 +186,15 @@ class PostService:
 
             try:
                 success = await self._deliver_thread_to_user(thread_id, user_id)
+            except ForumThreadUnavailableException as e:
+                self.logger.info(
+                    f"帖子不可用: {thread_id}, 论坛提示: {e.forum_message}"
+                )
+                await self.telegram_client.send_admin_notification(
+                    user_id,
+                    f"论坛提示：{e.forum_message}"
+                )
+                return False
             except ForumTransportException:
                 raise
             except Exception as e:
@@ -250,6 +260,18 @@ class PostService:
     async def _deliver_post_to_channel(self, post: ForumPost) -> bool:
         try:
             processed_thread = await self.post_processing_service.process_thread(post.id)
+        except ForumThreadUnavailableException as e:
+            self.logger.info(
+                f"发送论坛提示到频道: {post.id}, 论坛提示: {e.forum_message}"
+            )
+            unavailable_payload = self.telegram_formatter.format_unavailable_post(
+                post,
+                e.forum_message,
+            )
+            return await self.telegram_client.send_payload_to_channel(
+                self.channel_id,
+                unavailable_payload,
+            )
         except ForumTransportException:
             raise
         return await self.telegram_client.send_payload_to_channel(

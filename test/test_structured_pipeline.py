@@ -26,6 +26,7 @@ from domain.value_objects import UnknownElement
 from infrastructure.services import KeylolForumContentParser
 from infrastructure.services import KeylolThreadPageExtractor
 from infrastructure.services import TelegramFormatter
+from models.post import ForumPost
 
 
 class StructuredPipelineTests(unittest.TestCase):
@@ -218,6 +219,7 @@ class StructuredPipelineTests(unittest.TestCase):
                 ),
             ),
         )
+
         result = ParseResult(content=content, fallback_text=content.to_plain_text())
 
         with patch.object(
@@ -231,6 +233,29 @@ class StructuredPipelineTests(unittest.TestCase):
         self.assertIn(
             '<a href="https://store.steampowered.com/app/4532590/">BSide: Olivia Lin</a>',
             payload.text,
+        )
+
+    def test_formatter_builds_escaped_unavailable_post_payload(self):
+        post = ForumPost(
+            id=123,
+            title="标题 <测试> & 状态",
+            author="作者 <甲>",
+            url='https://example.com/t123-1-1?from="guide"&page=1',
+        )
+
+        payload = self.formatter.format_unavailable_post(
+            post,
+            "抱歉，您没有 <权限> & 请稍后重试",
+        )
+
+        self.assertEqual(payload.parse_mode, "html")
+        self.assertEqual(payload.media_urls, ())
+        self.assertEqual(
+            payload.text,
+            "<b>标题 &lt;测试&gt; &amp; 状态</b>\n"
+            "作者 &lt;甲&gt;\n"
+            "论坛提示：抱歉，您没有 &lt;权限&gt; &amp; 请稍后重试\n"
+            '<a href="https://example.com/t123-1-1?from=&quot;guide&quot;&amp;page=1">查看原帖</a>',
         )
 
     def test_formatter_uses_thread_title_when_steam_title_is_error_page(self):
