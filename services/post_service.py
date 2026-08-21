@@ -51,6 +51,9 @@ class PostService:
         
         # 已处理的帖子ID集合
         self.processed_posts: Set[int] = set()
+        self._pending_posts: dict[int, ForumPost] = {}
+        self._poll_lock = asyncio.Lock()
+        self._delivery_lock = asyncio.Lock()
         self.last_post: int = 0
         self.cache_file = os.path.join(work_dir, "processed_posts.json") if work_dir else "processed_posts.json"
         self._load_processed_posts()
@@ -86,28 +89,8 @@ class PostService:
     async def check_and_send_new_posts(self):
         """检查并发送新帖子"""
         try:
-            # 检查论坛登录状态
-            if not await self.forum_client.async_check_login_status():
-                await self._handle_login_required()
-                return
-            
-            posts = await self._load_latest_posts()
-            new_posts = [post for post in posts if post.id not in self.processed_posts]
-            
-            if not new_posts:
-                self.logger.info("没有新帖子")
-                return
-            
-            self.logger.info(f"发现 {len(new_posts)} 个新帖子")
-            
-            # 发送新帖子到频道
-            for post in new_posts:
-                success = await self._deliver_post_to_channel(post)
-                
-                if success:
-                    self.processed_posts.add(post.id)
-                    self._save_processed_posts()
-                    await asyncio.sleep(2)  # 避免发送过快
+            if await self._enqueue_latest_posts():
+                await self._drain_pending_posts()
             
         except ForumLoginException as e:
             self.logger.warning(f"论坛登录异常: {e}")
@@ -126,6 +109,63 @@ class PostService:
                 self.admin_id,
                 f"检查新帖子时出错: {str(e)}"
             )
+
+    async def _enqueue_latest_posts(self) -> bool:
+        if self._poll_lock.locked():
+            self.logger.info("上一轮帖子列表抓取仍在进行，跳过本轮抓取")
+            return True
+
+        async with self._poll_lock:
+            if not await self.forum_client.async_check_login_status():
+                await self._handle_login_required()
+                return False
+
+            posts = await self._load_latest_posts()
+            new_posts = [
+                post
+                for post in posts
+                if post.id not in self.processed_posts
+                and post.id not in self._pending_posts
+            ]
+
+            for post in new_posts:
+                self._pending_posts[post.id] = post
+
+            if new_posts:
+                self.logger.info(
+                    f"发现 {len(new_posts)} 个新帖子，"
+                    f"待发送队列共 {len(self._pending_posts)} 个帖子"
+                )
+            else:
+                self.logger.info("没有新帖子")
+
+            return True
+
+    async def _drain_pending_posts(self):
+        if not self._pending_posts:
+            return
+
+        if self._delivery_lock.locked():
+            self.logger.info(
+                f"频道投递仍在进行，待发送队列共 {len(self._pending_posts)} 个帖子"
+            )
+            return
+
+        async with self._delivery_lock:
+            while self._pending_posts:
+                post = next(iter(self._pending_posts.values()))
+                success = await self._deliver_post_to_channel(post)
+
+                if not success:
+                    self.logger.warning(
+                        f"帖子 {post.id} 发送失败，保留在待发送队列等待重试"
+                    )
+                    return
+
+                del self._pending_posts[post.id]
+                self.processed_posts.add(post.id)
+                self._save_processed_posts()
+                await asyncio.sleep(2)  # 避免发送过快
     
     async def _handle_login_required(self):
         """处理需要重新登录的情况"""

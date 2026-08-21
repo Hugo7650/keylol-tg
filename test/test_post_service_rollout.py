@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 import json
 from tempfile import TemporaryDirectory
@@ -85,6 +86,19 @@ class _FakeTelegramClient:
 
     async def send_admin_notification(self, admin_id: int, message: str, captcha_image=None) -> bool:
         self.notifications.append((admin_id, message))
+        return True
+
+
+class _BlockingTelegramClient(_FakeTelegramClient):
+    def __init__(self):
+        super().__init__()
+        self.channel_send_started = asyncio.Event()
+        self.release_channel_send = asyncio.Event()
+
+    async def send_payload_to_channel(self, channel_id: int, payload: TelegramPayload) -> bool:
+        self.channel_payloads.append((channel_id, payload))
+        self.channel_send_started.set()
+        await self.release_channel_send.wait()
         return True
 
 
@@ -188,7 +202,79 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(len(telegram_client.channel_payloads), 1)
             self.assertNotIn(101, service.processed_posts)
+            self.assertEqual(list(service._pending_posts), [101])
             self.assertEqual(telegram_client.notifications, [])
+
+    async def test_overlapping_polls_enqueue_each_post_once_during_blocked_delivery(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _BlockingTelegramClient()
+            post_processing_service = _FakePostProcessingService()
+            latest_posts_extractor = _FakeLatestPostsExtractor((101,))
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, latest_posts_extractor),
+            )
+
+            with patch("services.post_service.asyncio.sleep", new=_immediate_sleep):
+                first_poll = asyncio.create_task(service.check_and_send_new_posts())
+                await asyncio.wait_for(
+                    telegram_client.channel_send_started.wait(),
+                    timeout=1,
+                )
+
+                latest_posts_extractor.post_ids = (101, 102)
+                await asyncio.wait_for(service.check_and_send_new_posts(), timeout=1)
+
+                self.assertEqual(post_processing_service.calls, [101])
+                self.assertEqual(len(telegram_client.channel_payloads), 1)
+                self.assertEqual(list(service._pending_posts), [101, 102])
+
+                telegram_client.release_channel_send.set()
+                await asyncio.wait_for(first_poll, timeout=1)
+
+            self.assertEqual(post_processing_service.calls, [101, 102])
+            self.assertEqual(len(telegram_client.channel_payloads), 2)
+            self.assertEqual(service.processed_posts, {101, 102})
+            self.assertEqual(service._pending_posts, {})
+
+    async def test_failed_delivery_stays_deduplicated_and_retries_without_new_posts(self):
+        with TemporaryDirectory() as work_dir:
+            telegram_client = _FakeTelegramClient(channel_send_success=False)
+            post_processing_service = _FakePostProcessingService()
+            latest_posts_extractor = _FakeLatestPostsExtractor((101,))
+
+            service = PostService(
+                cast(Any, _FakeForumClient()),
+                cast(Any, telegram_client),
+                100,
+                200,
+                work_dir=work_dir,
+                post_processing_service=cast(Any, post_processing_service),
+                latest_posts_extractor=cast(Any, latest_posts_extractor),
+            )
+
+            await service.check_and_send_new_posts()
+            await service.check_and_send_new_posts()
+
+            self.assertEqual(list(service._pending_posts), [101])
+            self.assertEqual(post_processing_service.calls, [101, 101])
+            self.assertEqual(len(telegram_client.channel_payloads), 2)
+
+            telegram_client.channel_send_success = True
+            latest_posts_extractor.post_ids = ()
+            with patch("services.post_service.asyncio.sleep", new=_immediate_sleep):
+                await service.check_and_send_new_posts()
+
+            self.assertEqual(post_processing_service.calls, [101, 101, 101])
+            self.assertEqual(len(telegram_client.channel_payloads), 3)
+            self.assertEqual(service.processed_posts, {101})
+            self.assertEqual(service._pending_posts, {})
 
     async def test_single_unavailable_thread_returns_forum_message_to_requester(self):
         with TemporaryDirectory() as work_dir:
@@ -233,13 +319,15 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
                 200,
                 work_dir=work_dir,
                 post_processing_service=cast(Any, post_processing_service),
-                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101,))),
+                latest_posts_extractor=cast(Any, _FakeLatestPostsExtractor((101, 102))),
             )
 
             await service.check_and_send_new_posts()
 
             self.assertEqual(telegram_client.channel_payloads, [])
             self.assertNotIn(101, service.processed_posts)
+            self.assertEqual(post_processing_service.calls, [101])
+            self.assertEqual(list(service._pending_posts), [101, 102])
             self.assertEqual(
                 telegram_client.notifications,
                 [(200, "检查新帖子时出错: boom")],
@@ -342,6 +430,7 @@ class PostServiceRolloutTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual([payload.text for _, payload in telegram_client.channel_payloads], ["structured"])
             self.assertIn(101, service.processed_posts)
             self.assertNotIn(102, service.processed_posts)
+            self.assertEqual(list(service._pending_posts), [102])
 
             with open(f"{work_dir}/processed_posts.json", "r", encoding="utf-8") as file_handle:
                 persisted = json.load(file_handle)
