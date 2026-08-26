@@ -269,7 +269,7 @@ class TelegramFormatter:
                 pending_breaks += 1
                 continue
 
-            if isinstance(element, self._INLINE_BREAKING_NODES):
+            if self._is_inline_breaking_node(element):
                 if current_inline:
                     push_segment(
                         self._join_inline_fragments(current_inline),
@@ -298,6 +298,11 @@ class TelegramFormatter:
         rendered = "\n".join(line.rstrip() for line in lines)
         rendered = re.sub(r"\n{3,}", "\n\n", rendered)
         return rendered.strip()
+
+    def _is_inline_breaking_node(self, element: ContentElement) -> bool:
+        return isinstance(element, self._INLINE_BREAKING_NODES) or (
+            isinstance(element, EmbedNode) and element.provider == "steam"
+        )
 
     def _finalize_segment(self, segment: str, plain_text: str) -> str:
         if not segment:

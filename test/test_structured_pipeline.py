@@ -373,6 +373,39 @@ class StructuredPipelineTests(unittest.TestCase):
         self.assertIn(long_text[:40], payload.text)
         self.assertIn('<a href="https://example.com/t996-1-1">查看原帖</a>', payload.text)
 
+    def test_formatter_keeps_steam_embed_outside_long_expandable_segment(self):
+        metadata = self._make_metadata(
+            thread_id=983,
+            root_post_id=983,
+            title="长正文 Steam 信息盒测试",
+            author="测试作者",
+            publish_time=datetime(2026, 5, 30, 12, 34, 56),
+            url="https://example.com/t983-1-1",
+        )
+        long_text = "长段落正文" * 70
+        steam_url = "https://store.steampowered.com/app/123/"
+        content = PostContent(
+            metadata=metadata,
+            elements=(
+                TextElement(text=long_text),
+                LineBreakElement(),
+                self._make_embed(
+                    provider="steam",
+                    url=steam_url,
+                    label="游戏名",
+                ),
+            ),
+        )
+        result = ParseResult(content=content, fallback_text=content.to_plain_text())
+
+        payload = self.formatter.format(result)
+
+        self.assertIn("<blockquote expandable>", payload.text)
+        self.assertIn(
+            f'</blockquote>\n<a href="{steam_url}">游戏名</a>',
+            payload.text,
+        )
+
     def test_formatter_wraps_long_quote_in_expandable_blockquote(self):
         metadata = self._make_metadata(
             thread_id=992,
