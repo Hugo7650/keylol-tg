@@ -21,7 +21,7 @@ class TelegramClient:
         self.api_id = api_id
         self.api_hash = api_hash
         self.bot_token = bot_token
-        self.app: Client
+        self.app: Client | None = None
         self.logger = logging.getLogger(__name__)
         self.work_dir = work_dir
         self.post_service: Optional['PostService'] = None

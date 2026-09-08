@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import signal
 import sys
 from config import Config
@@ -10,20 +11,22 @@ from services.post_service import PostService
 
 class KeylolTelegramApp:
     """主应用程序"""
+
+    SHUTDOWN_TIMEOUT = 5
     
     def __init__(self):
         self.config = Config()
         self.forum_client = None
         self.telegram_client = None
-        self.scheduler : TaskScheduler
+        self.scheduler: TaskScheduler | None = None
         self.post_service : PostService
         self.work_dir = 'data'
         self.logger = self._setup_logging()
         self._should_exit = asyncio.Event()
-        
-        # 设置信号处理
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
+        self._main_task = None
+        self._stop_task = None
+        self._exit_requested = False
+        self._loop = None
     
     def _setup_logging(self) -> logging.Logger:
         """设置日志"""
@@ -40,10 +43,20 @@ class KeylolTelegramApp:
     def _signal_handler(self, signum, frame):
         """信号处理器"""
         self.logger.info(f"收到信号 {signum}，准备退出...")
-        asyncio.create_task(self.stop())
+        if self._exit_requested:
+            os._exit(128 + signum)
+        self._exit_requested = True
+        if self._loop and self._main_task:
+            self._loop.call_soon_threadsafe(self._main_task.cancel)
     
     async def start(self):
         """启动应用"""
+        self._loop = asyncio.get_running_loop()
+        self._main_task = asyncio.current_task()
+        previous_handlers = {
+            sig: signal.signal(sig, self._signal_handler)
+            for sig in (signal.SIGINT, signal.SIGTERM)
+        }
         try:
             # 验证配置
             if not self.config.validate():
@@ -56,7 +69,8 @@ class KeylolTelegramApp:
             await self._initialize_components()
             
             # 启动调度器
-            self.scheduler.start()
+            if self.scheduler:
+                self.scheduler.start()
             
             self.logger.info("应用启动成功，开始监控...")
             
@@ -65,9 +79,18 @@ class KeylolTelegramApp:
             # 保持运行
             await self._keep_running()
             
+        except asyncio.CancelledError:
+            if not self._exit_requested:
+                raise
         except Exception as e:
             self.logger.error(f"应用启动失败: {e}")
             return False
+        finally:
+            try:
+                await self.stop()
+            finally:
+                for sig, handler in previous_handlers.items():
+                    signal.signal(sig, handler)
     
     async def _initialize_components(self):
         """初始化各个组件"""
@@ -129,30 +152,41 @@ class KeylolTelegramApp:
     
     async def _keep_running(self):
         """保持应用运行"""
-        try:
-            await self._should_exit.wait()
-        except asyncio.CancelledError:
-            pass
+        await self._should_exit.wait()
     
     async def stop(self):
         """停止应用"""
-        self.logger.info("正在停止应用...")
-        
-        if self.scheduler:
-            self.scheduler.stop()
-        
-        if self.telegram_client:
-            await self.telegram_client.send_admin_notification(
-                self.config.telegram_admin_id,
-                "Keylol Telegram 应用已停止"
-            )
-            await self.telegram_client.stop()
+        if self._stop_task is None:
+            self._stop_task = asyncio.create_task(self._shutdown())
+        await asyncio.shield(self._stop_task)
 
-        if self.forum_client:
-            await self.forum_client.aclose()
-        
-        self._should_exit.set()
-        self.logger.info("应用已停止")
+    async def _shutdown_step(self, name, operation):
+        try:
+            async with asyncio.timeout(self.SHUTDOWN_TIMEOUT):
+                await operation()
+        except TimeoutError:
+            self.logger.warning("%s超时，继续退出", name)
+        except Exception:
+            self.logger.exception("%s失败，继续退出", name)
+
+    async def _shutdown(self):
+        self.logger.info("正在停止应用...")
+        try:
+            if self.scheduler:
+                await self._shutdown_step("停止任务调度器", self.scheduler.stop)
+            if self.telegram_client:
+                await self._shutdown_step(
+                    "发送停止通知",
+                    lambda: self.telegram_client.send_admin_notification(
+                        self.config.telegram_admin_id, "Keylol Telegram 应用已停止"
+                    ),
+                )
+                await self._shutdown_step("停止 Telegram 客户端", self.telegram_client.stop)
+            if self.forum_client:
+                await self._shutdown_step("关闭论坛客户端", self.forum_client.aclose)
+        finally:
+            self._should_exit.set()
+            self.logger.info("应用已停止")
 
 async def main():
     """主函数"""

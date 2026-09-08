@@ -14,6 +14,7 @@ class TaskScheduler:
         self.logger = logging.getLogger(__name__)
         self.jobs = {}
         self.loop = loop
+        self._tasks = set()
     
     def add_job(self, func: Callable, interval: int, job_id: str = "", **kwargs):
         """添加定时任务"""
@@ -24,7 +25,7 @@ class TaskScheduler:
         if asyncio.iscoroutinefunction(func):
             def sync_wrapper(*args, **kw):
                 if self.loop:
-                    asyncio.run_coroutine_threadsafe(func(*args, **kw), self.loop)
+                    self.loop.call_soon_threadsafe(self._start_job, func, args, kw)
                 else:
                     self.logger.error("未设置事件循环，无法调度异步任务")
             job = schedule.every(interval).seconds.do(sync_wrapper, **kwargs)
@@ -52,11 +53,28 @@ class TaskScheduler:
         self.thread.start()
         self.logger.info("任务调度器启动")
     
-    def stop(self):
+    def _start_job(self, func, args, kwargs):
+        if not self.is_running:
+            return
+        task = self.loop.create_task(func(*args, **kwargs))
+        self._tasks.add(task)
+        task.add_done_callback(self._job_done)
+
+    def _job_done(self, task):
+        self._tasks.discard(task)
+        if not task.cancelled() and task.exception() is not None:
+            self.logger.error("定时任务失败: %s", task.exception())
+
+    async def stop(self):
         """停止调度器"""
         self.is_running = False
+        tasks = list(self._tasks)
+        for task in tasks:
+            task.cancel()
         if self.thread:
-            self.thread.join()
+            await asyncio.to_thread(self.thread.join)
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
         self.logger.info("任务调度器停止")
     
     def _run_schedule(self):
