@@ -4,6 +4,8 @@ from typing import Optional, Set, TYPE_CHECKING
 from datetime import datetime
 import json
 import os
+import tempfile
+from dataclasses import asdict
 
 from clients.forum_client import ForumClient, CaptchaRequiredException, ForumLoginException
 from clients.forum_client import ForumTransportException
@@ -27,7 +29,7 @@ class PostService:
         telegram_client: 'TelegramClient',
         channel_id: int,
         admin_id: int,
-        max_posts: int = 10,
+        max_posts: int = 50,
         work_dir: Optional[str] = None,
         post_processing_service: Optional[PostProcessingService] = None,
         latest_posts_extractor: Optional[KeylolLatestPostsPageExtractor] = None,
@@ -52,6 +54,7 @@ class PostService:
         # 已处理的帖子ID集合
         self.processed_posts: Set[int] = set()
         self._pending_posts: dict[int, ForumPost] = {}
+        self._state_dirty = False
         self._poll_lock = asyncio.Lock()
         self._delivery_lock = asyncio.Lock()
         self.last_post: int = 0
@@ -66,12 +69,18 @@ class PostService:
                     data = json.load(f)
                     self.processed_posts = set(data.get('posts', []))
                     self.last_post = data.get('last_post', 0)
+                    for record in data.get('pending_posts', []):
+                        post = ForumPost(**record)
+                        if post.id not in self.processed_posts:
+                            self._pending_posts.setdefault(post.id, post)
                     self.logger.info(f"加载了 {len(self.processed_posts)} 个已处理的帖子ID")
         except Exception as e:
             self.logger.error(f"加载已处理帖子失败: {e}")
     
     def _save_processed_posts(self):
-        """保存已处理的帖子ID"""
+        """原子保存已处理 ID 和完整待发送队列。"""
+        self._state_dirty = True
+        temporary_path = None
         try:
             # 只保留最大的200个帖子ID，避免文件过大
             posts_to_save = sorted(self.processed_posts, reverse=True)[:200]
@@ -79,12 +88,26 @@ class PostService:
             data = {
                 'posts': posts_to_save,
                 'last_update': datetime.now().isoformat(),
-                'last_post': last_post
+                'last_post': last_post,
+                'pending_posts': [asdict(post) for post in self._pending_posts.values()],
             }
-            with open(self.cache_file, 'w', encoding='utf-8') as f:
+            with tempfile.NamedTemporaryFile(
+                mode='w', encoding='utf-8',
+                dir=os.path.dirname(os.path.abspath(self.cache_file)),
+                prefix='processed_posts.', suffix='.tmp', delete=False,
+            ) as f:
+                temporary_path = f.name
                 json.dump(data, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporary_path, self.cache_file)
+            self._state_dirty = False
         except Exception as e:
-            self.logger.error(f"保存已处理帖子失败: {e}")
+            self.logger.error(f"保存帖子状态失败: {e}")
+            raise
+        finally:
+            if temporary_path is not None and os.path.exists(temporary_path):
+                os.unlink(temporary_path)
     
     async def check_and_send_new_posts(self):
         """检查并发送新帖子"""
@@ -120,7 +143,19 @@ class PostService:
                 await self._handle_login_required()
                 return False
 
-            posts = await self._load_latest_posts()
+            try:
+                posts = await self._load_latest_posts()
+            except (ForumLoginException, CaptchaRequiredException):
+                raise
+            except ForumTransportException as e:
+                self.logger.warning(f"最新帖子列表获取失败，继续重试待发送队列: {e}")
+                return True
+            except Exception as e:
+                self.logger.error(f"最新帖子列表获取失败: {e}")
+                await self.telegram_client.send_admin_notification(
+                    self.admin_id, f"检查新帖子时出错: {e}"
+                )
+                return True
             new_posts = [
                 post
                 for post in posts
@@ -132,6 +167,7 @@ class PostService:
                 self._pending_posts[post.id] = post
 
             if new_posts:
+                self._save_processed_posts()
                 self.logger.info(
                     f"发现 {len(new_posts)} 个新帖子，"
                     f"待发送队列共 {len(self._pending_posts)} 个帖子"
@@ -142,6 +178,8 @@ class PostService:
             return True
 
     async def _drain_pending_posts(self):
+        if self._state_dirty:
+            self._save_processed_posts()
         if not self._pending_posts:
             return
 
@@ -153,6 +191,8 @@ class PostService:
 
         async with self._delivery_lock:
             while self._pending_posts:
+                if self._state_dirty:
+                    self._save_processed_posts()
                 post = next(iter(self._pending_posts.values()))
                 success = await self._deliver_post_to_channel(post)
 

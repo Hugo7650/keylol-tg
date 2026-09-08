@@ -23,7 +23,7 @@ class Config:
     
     # 其他配置
     check_interval: int = int(os.getenv('CHECK_INTERVAL', '300'))  # 5分钟
-    max_posts_per_check: int = int(os.getenv('MAX_POSTS_PER_CHECK', '10'))
+    max_posts_per_check: int = int(os.getenv('MAX_POSTS_PER_CHECK', '50'))
     
     def validate(self) -> bool:
         """验证配置是否完整"""
