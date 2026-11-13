@@ -1,0 +1,17 @@
+[Unit]
+Description=Keylol Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=keylol
+Group=keylol
+WorkingDirectory=/opt/keylol-tg
+EnvironmentFile=/opt/keylol-tg/.env
+ExecStart=/usr/bin/uv run main.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
