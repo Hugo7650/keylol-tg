@@ -23,30 +23,50 @@
 
 ## 安装和配置
 
+### Linux systemd 安装
+
+在已安装 `uv` 的 Linux 主机上克隆仓库，并从项目目录运行安装脚本：
+
+```bash
+git clone https://github.com/Hugo7650/keylol-tg.git
+cd keylol-tg
+sudo bash install.sh
+```
+
+脚本会创建 `keylol` 系统用户，将项目安装到 `/opt/keylol-tg`，使用 `uv sync` 安装依赖并注册 systemd unit。首次安装时会复制 `.env.example` 为 `.env`，为保护凭据不会自动启动服务；请编辑配置文件后启用：
+
+```bash
+sudo nano /opt/keylol-tg/.env
+sudo systemctl enable --now keylol-tg
+sudo systemctl status keylol-tg
+```
+
+再次运行安装脚本会保留现有 `.env`、`data/` 和虚拟环境，并在配置文件已存在时启用或重启服务。脚本需要 root 权限以及系统中可用的 `uv`、`systemctl` 和 `runuser`。
+
+### 手动运行
+
 1. 安装依赖：
 
 ```bash
-pip install -e .
+uv sync
 ```
 
-2. 复制配置文件：
+2. 复制配置文件并填写配置：
 
 ```bash
 cp .env.example .env
 ```
 
-3. 编辑 `.env` 文件，填入你的配置信息
+3. 运行机器人：
+
+```bash
+uv run main.py
+```
 
 网络稳健性相关配置：
 - `FORUM_REQUEST_RETRIES`: 论坛请求失败后的额外重试次数，默认 `2`
 - `FORUM_RETRY_BACKOFF`: 重试退避基数秒数，默认 `1.0`，实际等待为 `1s`、`2s`、`4s` 递增
 - 临时的 SSL EOF、连接中断、超时或 `5xx/429` 会先重试，再决定是否跳过本轮抓取
-
-4. 运行机器人：
-
-```bash
-python main.py
-```
 
 ## 待发送队列与重启恢复
 
@@ -64,12 +84,12 @@ python main.py
 ## 测试
 
 ```bash
-.venv\Scripts\python.exe -m unittest discover -s test -p "test_*.py"
+uv run python -m unittest discover -s test -p 'test_*.py'
 ```
 
 ## 文档
 
-- 标签支持矩阵与当前能力判断： [analysis/keylol_tag_support_matrix.md](analysis/keylol_tag_support_matrix.md)
+- 标签支持矩阵与当前能力判断：[analysis/keylol_tag_support_matrix.md](analysis/keylol_tag_support_matrix.md)
 
 ## 验证码处理
 
